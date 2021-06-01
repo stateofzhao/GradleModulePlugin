@@ -1,0 +1,88 @@
+//插件定义-----------------------------------------------start
+//这里踩过一个坑，网上搜到的自定义插件都没有这一部分内容，导致打包发布后，
+// 项目引用后gradle一直报 "Plugin with id {xxx} not found"这个错误！
+//不知道是不是由于 gradle版本变化还是咋地，网上搜到的教程把这一部分漏掉了。。
+//使用 Java Gradle Plugin Development Plugin 插件来打包本插件
+plugins {
+    id 'java-gradle-plugin'
+}
+//配置打包信息
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'com.zfun.funmodule'
+            implementationClass = 'com.zfun.funmodule.ModulesConfigPlugin'
+        }
+    }
+}//插件定义-----------------------------------------------end
+
+//写插件需要的-----------------------------------------------start
+apply plugin: 'groovy'
+
+//项目自身需要的资源。【在本项目中就是自己写的插件代码中需要用到】
+dependencies{
+    implementation gradleApi()
+    implementation localGroovy()
+
+    //为了查看源码-----------------start
+//    repositories {
+//        jcenter()
+//        maven {
+//            url 'https://dl.google.com/dl/android/maven2/'
+//            name 'Google'
+//        }
+//    }
+//    implementation 'com.android.tools.build:gradle:3.2.1'
+    //为了查看源码-----------------end
+}
+
+//buildscript中的声明是gradle脚本自身需要使用的资源,可以声明的资源包括依赖项、第三方插件、maven仓库地址等，
+// 用来支持其它build脚本的运行。所以你应当将这部分的引用放置在buildscript代码块中。gradle在执行脚本时，会优先执行buildscript代码块中的内容，
+// 然后才会执行剩余的build脚本。
+//此外在 buildscript 块中可以使用
+// dependencies {
+//        classpath 'org.apache.commons:commons-csv:1.0'
+//    }
+//classpath 这种形式的依赖声明，该classpath声明说明了在执行其余的build脚本时，class loader可以使用这些你提供的依赖项。
+//【在本项目中的代码是引用不到这里面声明的依赖的，是gradle运行时自己用到的依赖】
+//buildscript {
+//    //设置依赖源
+//    repositories {
+//        jcenter()
+//        maven {
+//            url 'https://dl.google.com/dl/android/maven2/'
+//            name 'Google'
+//        }
+//    }
+//    //设置依赖，这样设置后相当于本脚本"继承"了com.android.tools.build:gradle，具有了 com.android.tools.build:gradle 所具有的功能
+//    dependencies {
+//        classpath 'com.android.tools.build:gradle:3.2.1'
+//    }
+//}
+//写插件需要的-----------------------------------------------end
+
+//以下内容用于本插件的发布-----------------------------------------------start
+apply plugin: 'maven'
+repositories {
+    mavenCentral()
+}
+
+//调用 Upload#uploadArchives(Closure)方法来发布插件
+//Upload这个类继承自DefaultTask
+uploadArchives{
+    repositories {
+        mavenDeployer{
+            // 【./表示当前目录 ../表示父目录】所以这句话的意思是放到当前目录的父目录中，也就是本build.gradle所在目录的上一级目录。
+            // PS这里其实也可以写成../repo
+            repository(url: uri('./../../repo'))
+            pom.groupId='com.zfun.funmodule'
+            //pom.artifactId = ''//默认为工程根目录名称
+            pom.version='0.0.4'
+
+            //其它地方引用时，需要下面这样依赖
+            //dependencies {
+            //   classpath 'group:artifactId:3.2.1'
+            //}
+        }
+    }
+}//以下内容用于本插件的发布-----------------------------------------------end
