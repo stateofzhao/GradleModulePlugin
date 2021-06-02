@@ -26,12 +26,12 @@ public class LibProcess implements IProcess {
 
             //将manifest复制走，用完了再还回来~
             final String moduleName = project.getName();
-            File desManifestParentDir = new File(project.getRootDir() + "/" + Constants.sBuildTempFile);
+            File desManifestParentDir = new File(project.getRootDir() + "/" + Constants.sBuildTempFile+"/" + moduleName + "_manifest" );
             if (!desManifestParentDir.exists()) {
                 desManifestParentDir.mkdirs();
             }
             final File srcManifest = new File(FileUtil.findManifestPath(project));
-            final File desManifest = new File(desManifestParentDir.getAbsolutePath() + "/" + moduleName + "_manifest/" + Constants.sManifestName);
+            final File desManifest = new File(desManifestParentDir.getAbsolutePath() , Constants.sManifestName);
             oriManifestFile = srcManifest;
             savedManifestFile = desManifest;
             if (desManifest.exists()) {

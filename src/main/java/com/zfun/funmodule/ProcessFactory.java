@@ -17,7 +17,11 @@ public class ProcessFactory {
             }
             final int runType = modulesEx.runType;
             final String mainAppName = modulesEx.mainAppName;
+            //针对mainApp进行处理
             if (mainAppName.equals(extension.moduleName)) {
+                if(Constants.sRunTypeModule == runType){
+                    return new RemoveDependencyProcess(modulesEx.libName);
+                }
                 return new EmptyProcess();
             }
 

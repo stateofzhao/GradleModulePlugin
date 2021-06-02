@@ -5,6 +5,9 @@ public class Constants {
     public static final String sManifestName = "AndroidManifest.xml";
     public static final String sManifestDir = "/src/main/";
     public static final String sManifestPath = sManifestDir + sManifestName;
+    public static final String sDefaultDependenciesRegexPre = "[a-zA-Z]+\\s+project+\\s*[(]+\\s*['|\"]+:";
+    public static final String sDefaultDependenciesRegexEnd = "['|\"]+\\s*[)]";
+    public static final String sBuildGradleName = "build.gradle";
 
     public static final String sExtensionName = "funModule";
     public static final String sDefaultAppName = "app";

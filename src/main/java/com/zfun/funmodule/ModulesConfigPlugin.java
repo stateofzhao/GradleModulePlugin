@@ -68,6 +68,9 @@ class ModulesConfigPlugin extends BasePlugin {
         if(null == rootEx){
             return null;
         }
+        if(rootEx.mainAppName == null || rootEx.mainAppName.trim().length()==0){
+            rootEx.mainAppName = Constants.sDefaultAppName;
+        }
         if(null == resultEx){
             resultEx = new ModulesEx();
         }
