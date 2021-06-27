@@ -1,6 +1,7 @@
 package com.zfun.funmodule;
 
 import com.zfun.funmodule.util.LogMe;
+import javafx.util.Pair;
 import org.gradle.BuildResult;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -11,18 +12,16 @@ import java.util.Set;
 
 //每个build.gradle都对应一个自己的Plugin实例
 public abstract class BasePlugin implements Plugin<Project> {
-    protected abstract Class<? extends BaseExtension> getMyExtension();
+    protected abstract Pair<String,Class<? extends BaseExtension>>[] getMyExtension();
 
     @Override
     public void apply(Project project) {//梦开始的地方
         LogMe.P("插件apply===="+project.getName());
-        project.getExtensions().create(Constants.sExtensionName,getMyExtension());//在 apply() 方法中是获取不到 Extension 的值的！但是Task中可以（doFirst()中也不可以获取到）
+        //在 apply() 方法中是获取不到 Extension 的值的！但是Task中可以（doFirst()中也不可以获取到）
+        for(Pair<String,Class<? extends BaseExtension>> aPair:getMyExtension()){
+            project.getExtensions().create(aPair.getKey(),aPair.getValue());
+        }
         configProject(project);
-    }
-
-    //根工程build.gradle配置获取到
-    protected void onRootProjectExtensionValueGet(Project project,BaseExtension extension){
-
     }
 
     protected void beforeEvaluate(Project project){
@@ -55,9 +54,7 @@ public abstract class BasePlugin implements Plugin<Project> {
             @Override
             public void execute(Project project) {
                 if(isRootProject(project)){//根据配置的扩展参数来初始化一些东西
-                    final BaseExtension baseExtension = project.getExtensions().findByType(getMyExtension());
-                    configInRootProjectHaveExtensionValue(project,baseExtension);
-                    onRootProjectExtensionValueGet(project,baseExtension);
+                    configInRootProjectHaveExtensionValue(project);
                 }
                 afterEvaluate(project);
             }
@@ -78,8 +75,23 @@ public abstract class BasePlugin implements Plugin<Project> {
         });
     }
 
-    private void configInRootProjectHaveExtensionValue(Project project,BaseExtension baseExtension){
-        LogMe.isDebug = baseExtension.buildType==Constants.BUILD_DEBUG;
+    private void configInRootProjectHaveExtensionValue(Project project){
+        Pair<String,Class<? extends BaseExtension>>[] exs = getMyExtension();
+        if(null == exs){
+            return;
+        }
+        boolean isDebug = false;
+        for(Pair<String,Class<? extends BaseExtension>> aPair:exs){
+            BaseExtension baseExtension = project.getExtensions().findByType(aPair.getValue());
+            if(null == baseExtension){
+                continue;
+            }
+            if(baseExtension.buildType == Constants.BUILD_DEBUG){
+                isDebug = true;
+                break;
+            }
+        }
+        LogMe.isDebug =isDebug;
     }
 
     private void configProject(Project project){

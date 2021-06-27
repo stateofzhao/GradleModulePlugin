@@ -77,7 +77,7 @@ uploadArchives{
             repository(url: uri('./../../repo'))
             pom.groupId='com.zfun.funmodule'
             //pom.artifactId = ''//默认为工程根目录名称
-            pom.version='0.0.4'
+            pom.version='0.0.5'
 
             //其它地方引用时，需要下面这样依赖
             //dependencies {

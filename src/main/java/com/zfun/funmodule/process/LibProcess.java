@@ -26,7 +26,8 @@ public class LibProcess implements IProcess {
 
             //将manifest复制走，用完了再还回来~
             final String moduleName = project.getName();
-            File desManifestParentDir = new File(project.getRootDir() + "/" + Constants.sBuildTempFile+"/" + moduleName + "_manifest" );
+            File tempDir = FileUtil.getTempFileDir(project);
+            File desManifestParentDir = new File(tempDir,moduleName + "_manifest" );
             if (!desManifestParentDir.exists()) {
                 desManifestParentDir.mkdirs();
             }
@@ -39,12 +40,13 @@ public class LibProcess implements IProcess {
             }
             //修改manifest
             try {
-                LogMe.D(project.getName() + "：manifestPath==" + srcManifest.toPath());
+                LogMe.D(project.getName() + "：manifestPath==" + oriManifestFile.toPath());
                 LogMe.D(project.getName() + "：desManifestPath==" + desManifest.toPath());
                 FileUtil.copy(srcManifest, desManifest);
                 LogMe.D(project.getName() + "：开始修改xml文件");
-                FileUtil.removeManifestLauncherActivity(srcManifest);
+                FileUtil.removeManifestLauncherActivity(oriManifestFile);
                 needRecoverManifestFile = true;
+                LogMe.D("修改后的Manifest：" +  FileUtil.getText(oriManifestFile));
             } catch (Exception e) {
                 //
             }
@@ -72,9 +74,8 @@ public class LibProcess implements IProcess {
                 if(oriManifestFile.exists()){
                     oriManifestFile.delete();
                 }
-                LogMe.D("还原Manifest：savedManifestFile：" + savedManifestFile.toString());
-                LogMe.D("还原Manifest：into：" + oriManifestFile.toString());
                 FileUtil.copy(savedManifestFile, oriManifestFile);
+                LogMe.D("Manifest 还原完成");
             }
         } catch (IOException e) {
             //
