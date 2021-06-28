@@ -17,11 +17,15 @@ buildscript {
 }
 apply plugin: 'com.zfei.funmodule'
   
-funModule {
+funAppLib {
     mainAppName = "app"	//主（壳）工程的module名称
     runType = 1	//有三种类型
     buildType = 1 //releases时传递2，debug时传递1
     libName = ["modulea","moduleb"] //作为lib的module名称，注意如果没有界面那么可以不用在这里声明
+}
+
+funInject{
+    injectCode = ["modulea":"gradle_code.txt"]//module名:要注入的gradle代码文件路径（相对项目根目录的路径）
 }
 ```
 
