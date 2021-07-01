@@ -1,7 +1,7 @@
 package com.zfun.funmodule;
 
 import com.zfun.funmodule.util.LogMe;
-import javafx.util.Pair;
+import com.zfun.funmodule.util.Pair;
 import org.gradle.BuildResult;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
