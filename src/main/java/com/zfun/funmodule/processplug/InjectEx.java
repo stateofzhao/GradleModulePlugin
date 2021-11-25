@@ -1,8 +1,10 @@
-package com.zfun.funmodule;
+package com.zfun.funmodule.processplug;
+
+import com.zfun.funmodule.BaseExtension;
 
 import java.util.Map;
 
-public class InjectEx extends BaseExtension{
+public class InjectEx extends BaseExtension {
     public Map<String,String> injectCode;
 
     @Override

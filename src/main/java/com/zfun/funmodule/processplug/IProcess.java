@@ -1,4 +1,4 @@
-package com.zfun.funmodule;
+package com.zfun.funmodule.processplug;
 
 import org.gradle.BuildResult;
 import org.gradle.api.Project;

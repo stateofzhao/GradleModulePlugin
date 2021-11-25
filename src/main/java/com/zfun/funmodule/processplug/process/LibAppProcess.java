@@ -1,6 +1,6 @@
-package com.zfun.funmodule.process;
+package com.zfun.funmodule.processplug.process;
 
-import com.zfun.funmodule.IProcess;
+import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.util.FileUtil;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;

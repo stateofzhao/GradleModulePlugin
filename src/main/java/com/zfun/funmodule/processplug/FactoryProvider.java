@@ -1,5 +1,6 @@
-package com.zfun.funmodule;
+package com.zfun.funmodule.processplug;
 
+import com.zfun.funmodule.BaseExtension;
 import org.gradle.api.Project;
 
 public class FactoryProvider {

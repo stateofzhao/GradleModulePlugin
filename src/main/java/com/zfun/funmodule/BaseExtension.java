@@ -1,6 +1,6 @@
 package com.zfun.funmodule;
 
 public class BaseExtension {
-    int buildType;
+    public int buildType;
     public String moduleName;
 }

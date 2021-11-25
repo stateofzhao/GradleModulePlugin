@@ -1,5 +1,8 @@
-package com.zfun.funmodule;
+package com.zfun.funmodule.processplug;
 
+import com.zfun.funmodule.BaseExtension;
+import com.zfun.funmodule.BasePlugin;
+import com.zfun.funmodule.Constants;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
 import org.gradle.BuildResult;

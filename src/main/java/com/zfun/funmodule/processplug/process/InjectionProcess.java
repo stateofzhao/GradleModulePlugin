@@ -1,8 +1,8 @@
-package com.zfun.funmodule.process;
+package com.zfun.funmodule.processplug.process;
 
 import com.zfun.funmodule.Constants;
-import com.zfun.funmodule.IProcess;
-import com.zfun.funmodule.InjectEx;
+import com.zfun.funmodule.processplug.IProcess;
+import com.zfun.funmodule.processplug.InjectEx;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
 import org.gradle.BuildResult;

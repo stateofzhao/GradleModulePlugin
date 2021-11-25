@@ -11,11 +11,11 @@ buildscript {
             url uri('./../../repo')
         }
         dependencies {
-            classpath 'com.zfei.funmodule:GradleMoudlePlugin:0.0.4'
+            classpath 'com.zfun.funmodule:GradleMoudlePlugin:1.0.0'
         }
     }
 }
-apply plugin: 'com.zfei.funmodule'
+apply plugin: 'com.zfun.funmodule'
   
 funAppLib {
     mainAppName = "app"	//主（壳）工程的module名称

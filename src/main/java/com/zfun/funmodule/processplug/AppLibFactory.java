@@ -1,6 +1,8 @@
-package com.zfun.funmodule;
+package com.zfun.funmodule.processplug;
 
-import com.zfun.funmodule.process.*;
+import com.zfun.funmodule.BaseExtension;
+import com.zfun.funmodule.Constants;
+import com.zfun.funmodule.processplug.process.*;
 import org.gradle.api.Project;
 
 public class AppLibFactory implements IProcessFactory<AppLibEx> {

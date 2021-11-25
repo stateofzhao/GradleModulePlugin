@@ -10,7 +10,10 @@ import org.gradle.api.invocation.Gradle;
 
 import java.util.Set;
 
-//每个build.gradle都对应一个自己的Plugin实例
+//每个build.gradle都对应一个自己的Plugin实例，互不干扰；
+//哪个build.gradle文件中 apply 了插件，哪个build.gradle执行到 apply plugin: 'com.zfun.funmodule' 这行代码时，
+// 就会执行到 apply的插件的 apply(Project)方法；
+//不 apply 插件的build.gradle，不会触发 插件的 apply(Project)方法；
 public abstract class BasePlugin implements Plugin<Project> {
     protected abstract Pair<String,Class<? extends BaseExtension>>[] getMyExtension();
 

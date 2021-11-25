@@ -1,7 +1,7 @@
-package com.zfun.funmodule;
+package com.zfun.funmodule.processplug;
 
-import com.zfun.funmodule.process.EmptyProcess;
-import com.zfun.funmodule.process.InjectionProcess;
+import com.zfun.funmodule.processplug.process.EmptyProcess;
+import com.zfun.funmodule.processplug.process.InjectionProcess;
 import org.gradle.api.Project;
 
 public class InjectFactory implements IProcessFactory<InjectEx> {
