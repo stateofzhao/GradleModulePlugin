@@ -1,8 +1,8 @@
 //插件定义-----------------------------------------------start
-//这里踩过一个坑，网上搜到的自定义插件都没有这一部分内容，导致打包发布后，
-// 项目引用后gradle一直报 "Plugin with id {xxx} not found"这个错误！
-//不知道是不是由于 gradle版本变化还是咋地，网上搜到的教程把这一部分漏掉了。。
-//使用 Java Gradle Plugin Development Plugin 插件来打包本插件
+/**这里踩过一个坑，网上搜到的自定义插件都没有这一部分内容，导致打包发布后，
+ 项目引用后gradle一直报 "Plugin with id {xxx} not found"这个错误！
+ 不知道是不是由于 gradle版本变化还是咋地，网上搜到的教程把这一部分漏掉了。。
+ 使用 Java Gradle Plugin Development Plugin 插件来打包本插件 */
 plugins {
     id 'java-gradle-plugin'
 }
@@ -16,10 +16,10 @@ gradlePlugin {
     }
 }//插件定义-----------------------------------------------end
 
-//写插件需要的-----------------------------------------------start
+//写插件需要的------------------------------------------------------------------------------------------------------------start
 apply plugin: 'groovy'
 
-//项目自身需要的资源。【在本项目中就是自己写的插件代码中需要用到】
+//【项目】自身需要的资源。【在本项目中就是自己写的插件代码中需要用到】
 dependencies{
     implementation gradleApi()
     implementation localGroovy()
@@ -36,15 +36,16 @@ dependencies{
     //为了查看源码-----------------end
 }
 
-//buildscript中的声明是gradle脚本自身需要使用的资源,可以声明的资源包括依赖项、第三方插件、maven仓库地址等，
-// 用来支持其它build脚本的运行。所以你应当将这部分的引用放置在buildscript代码块中。gradle在执行脚本时，会优先执行buildscript代码块中的内容，
-// 然后才会执行剩余的build脚本。
-//此外在 buildscript 块中可以使用
-// dependencies {
-//        classpath 'org.apache.commons:commons-csv:1.0'
-//    }
-//classpath 这种形式的依赖声明，该classpath声明说明了在执行其余的build脚本时，class loader可以使用这些你提供的依赖项。
-//【在本项目中的代码是引用不到这里面声明的依赖的，是gradle运行时自己用到的依赖】
+/** buildscript中的声明是 <<<gradle【脚本】自身>>> 需要使用的资源（换句话说就是本项目进行编译时需要的依赖）,
+ 可以声明的资源包括依赖项、第三方插件、maven仓库地址等，
+ 用来支持其它build脚本的运行。所以你应当将这部分的引用放置在buildscript代码块中。gradle在执行脚本时，会优先执行buildscript代码块中的内容，
+ 然后才会执行剩余的build脚本。
+ 此外在 buildscript 块中可以使用
+ dependencies {
+    classpath 'org.apache.commons:commons-csv:1.0'
+ }
+ classpath 这种形式的依赖声明，该classpath声明说明了在执行其余的build脚本时，class loader可以使用这些你提供的依赖项。
+【在本项目中的代码是引用不到这里面声明的依赖的，是gradle运行时自己用到的依赖】*/
 //buildscript {
 //    //设置依赖源
 //    repositories {
@@ -59,7 +60,7 @@ dependencies{
 //        classpath 'com.android.tools.build:gradle:3.2.1'
 //    }
 //}
-//写插件需要的-----------------------------------------------end
+//写插件需要的------------------------------------------------------------------------------------------------------------end
 
 //以下内容用于本插件的发布-----------------------------------------------start
 apply plugin: 'maven'
