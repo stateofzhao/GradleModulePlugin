@@ -115,6 +115,9 @@ public class MultiChannelV1Process implements IProcess {
                         ZipUtil.writeCommit(desOutFile, aChannel, "");
                         String testReadChannel = ZipUtil.getChannelId(finalOutFileFullPath, "", "unKnown");
                         LogMe.D("startMultiCreateApk 读取写入的渠道信息 = "+testReadChannel);
+                        if(!aChannel.equals(testReadChannel)){
+                            throw new RuntimeException("多渠道打包失败 = 写入的的渠道为 :"+aChannel+"\r\n"+"读取到的渠道为："+testReadChannel);
+                        }
                     }
                 } catch (Exception e) {
                     LogMe.D("startMultiCreateApk = Exception" + e);
