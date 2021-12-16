@@ -1,5 +1,6 @@
 package com.zfun.funmodule;
 
+import com.android.annotations.NonNull;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
 import org.gradle.BuildResult;
@@ -10,6 +11,8 @@ import org.gradle.api.invocation.Gradle;
 
 import java.util.Set;
 
+//此插件只可以配置到根目录的build.gradle上！
+//
 //每个build.gradle都对应一个自己的Plugin实例，互不干扰；
 //哪个build.gradle文件中 apply 了插件，哪个build.gradle执行到 apply plugin: 'com.zfun.funmodule' 这行代码时，
 // 就会执行到 apply的插件的 apply(Project)方法；
@@ -18,11 +21,22 @@ public abstract class BasePlugin implements Plugin<Project> {
     protected abstract Pair<String,Class<? extends BaseExtension>>[] getMyExtension();
 
     @Override
-    public void apply(Project project) {//梦开始的地方
-        LogMe.P("插件apply===="+project.getName());
+    public void apply(@NonNull Project project) {//梦开始的地方
+        if(!isRootProject(project)){ //只有 根build.gradle 起作用
+            return;
+        }
+        LogMe.P("插件入口apply ==== "+project.getName());
+        //一个"串行"build.gradle上只能存在一个同名的Extension，比如此Extension，已经在 根build.gradle 创建了，
+        // 那么就不能在 子build.gradle 上面再次创建与此同名的Extension了。<br/>
+
+        //由于上面的判断，只有只对 根build.gradle 起作用，所以下面这个Extension只有 根build.gradle 有，
+        // 所有在 子build.gradle 对此Extension的赋值都是对 根build.gradle Extension值的覆盖。<br/>
+
         //在 apply() 方法中是获取不到 Extension 的值的！但是Task中可以（doFirst()中也不可以获取到）
         for(Pair<String,Class<? extends BaseExtension>> aPair:getMyExtension()){
-            project.getExtensions().create(aPair.getKey(),aPair.getValue());
+            //一旦创建，project就含有了创建的Extension，用户在build.gradle中的调用只是给其设置值，
+            // 如果用户没有调用那么获取的Extension就是默认值。
+            project.getExtensions().create(aPair.getKey(),aPair.getValue(),project);
         }
         configProject(project);
     }
@@ -44,18 +58,18 @@ public abstract class BasePlugin implements Plugin<Project> {
     }
 
     private void configInRootProjectNoExtensionValue(final Project project){
-        addSubProjectBeforeAfterEvaluate(project);
+        addSubProjectListener(project);
 
         //-----------------------配置rootProject的监听
         project.beforeEvaluate(new Action<Project>() {//这个是监听不到的，以为此时rootProject已经开始Evaluate了
             @Override
-            public void execute(Project project) {
+            public void execute(@NonNull Project project) {
 
             }
         });
         project.afterEvaluate(new Action<Project>() {
             @Override
-            public void execute(Project project) {
+            public void execute(@NonNull Project project) {
                 if(isRootProject(project)){//根据配置的扩展参数来初始化一些东西
                     configInRootProjectHaveExtensionValue(project);
                 }
@@ -65,14 +79,14 @@ public abstract class BasePlugin implements Plugin<Project> {
 
         project.getGradle().buildStarted(new Action<Gradle>() { //监听不到，因为到这里时已经buildStarted了
             @Override
-            public void execute(Gradle gradle) {
+            public void execute(@NonNull Gradle gradle) {
                 buildStarted(project,gradle);
             }
         });
 
         project.getGradle().buildFinished(new Action<BuildResult>() {
             @Override
-            public void execute(BuildResult buildResult) {
+            public void execute(@NonNull BuildResult buildResult) {
                 buildFinished(project,buildResult);
             }
         });
@@ -103,8 +117,8 @@ public abstract class BasePlugin implements Plugin<Project> {
         }
     }
 
-    //给所有子Project注册 beforeEvaluate() 回调
-    private void addSubProjectBeforeAfterEvaluate(Project project){
+    //给所有子Project注册 回调
+    private void addSubProjectListener(Project project){
         Set<Project> projects = project.getAllprojects();
         for(final Project aProject:projects){
             if(isRootProject(aProject)){
@@ -112,25 +126,25 @@ public abstract class BasePlugin implements Plugin<Project> {
             }
             aProject.beforeEvaluate(new Action<Project>() {
                 @Override
-                public void execute(Project project) {
+                public void execute(@NonNull Project project) {
                     beforeEvaluate(project);
                 }
             });
             aProject.afterEvaluate(new Action<Project>() {
                 @Override
-                public void execute(Project project) {
+                public void execute(@NonNull Project project) {
                     afterEvaluate(project);
                 }
             });
             aProject.getGradle().buildStarted(new Action<Gradle>() {//监听不到
                 @Override
-                public void execute(Gradle gradle) {
+                public void execute(@NonNull Gradle gradle) {
                     buildStarted(aProject,gradle);
                 }
             });
             aProject.getGradle().buildFinished(new Action<BuildResult>() {
                 @Override
-                public void execute(BuildResult buildResult) {
+                public void execute(@NonNull BuildResult buildResult) {
                     buildFinished(aProject,buildResult);
                 }
             });

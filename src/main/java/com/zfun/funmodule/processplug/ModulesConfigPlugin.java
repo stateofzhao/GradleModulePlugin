@@ -3,17 +3,23 @@ package com.zfun.funmodule.processplug;
 import com.zfun.funmodule.BaseExtension;
 import com.zfun.funmodule.BasePlugin;
 import com.zfun.funmodule.Constants;
+import com.zfun.funmodule.processplug.extension.AppLibEx;
+import com.zfun.funmodule.processplug.extension.InjectEx;
+import com.zfun.funmodule.processplug.extension.MultiChannelEx;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
 import org.gradle.api.invocation.Gradle;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 //使用IProcess来处理事务
-class ModulesConfigPlugin extends BasePlugin {
+public class ModulesConfigPlugin extends BasePlugin {
     private final FactoryProvider processFactoryProvider;
     private final Map<Project, IProcess[]> processMap;
 
@@ -24,6 +30,7 @@ class ModulesConfigPlugin extends BasePlugin {
 
     @Override
     protected void beforeEvaluate(Project project) {
+        LogMe.D("beforeEvaluate == "+project.getName());
         final IProcess[] process = findProcess(project);
         if(null == process){
             return;
@@ -33,12 +40,12 @@ class ModulesConfigPlugin extends BasePlugin {
                 continue;
             }
             aProcess.beforeEvaluate(project);
-            LogMe.D("beforeEvaluate：" + project.getName() + "==process==" + aProcess);
         }
     }
 
     @Override
     protected void afterEvaluate(Project project) {
+        LogMe.D("afterEvaluate == "+project.getName());
         final IProcess[] process = findProcess(project);
         if(null == process){
             return;
@@ -48,7 +55,6 @@ class ModulesConfigPlugin extends BasePlugin {
                 continue;
             }
             aProcess.afterEvaluate(project);
-            LogMe.D("afterEvaluate：" + project.getName() + "==process==" + aProcess);
         }
     }
 
@@ -63,7 +69,6 @@ class ModulesConfigPlugin extends BasePlugin {
                 continue;
             }
             aProcess.buildStarted(project,gradle);
-            LogMe.D("buildStarted：" + project.getName() + "==process==" + aProcess);
         }
     }
 
@@ -78,7 +83,6 @@ class ModulesConfigPlugin extends BasePlugin {
                 continue;
             }
             aProcess.buildFinished(project,buildResult);
-            LogMe.D("buildFinished：" + project.getName() + "==process==" + aProcess);
         }
     }
 
@@ -86,18 +90,20 @@ class ModulesConfigPlugin extends BasePlugin {
     protected Pair<String, Class<? extends BaseExtension>>[] getMyExtension() {
         return new Pair[]{
                 new Pair<>(Constants.sAppLibExtensionName, AppLibEx.class),
-                new Pair<>(Constants.sInjectExtensionName, InjectEx.class)
+                new Pair<>(Constants.sInjectExtensionName, InjectEx.class),
+                new Pair<>(Constants.sMultiChannelExName, MultiChannelEx.class)
         };
     }
 
+    @Nullable
     private IProcess[] findProcess(Project project) {
-        final BaseExtension[] exs = findPluginEx(project);
-        if (null == exs) {
-            return null;
-        }
-        IProcess[] processes = processMap.get(project);
-        if (null == processes) {
-            processes = new IProcess[exs.length];
+        if (!processMap.containsKey(project)) {
+            final BaseExtension[] exs = findPluginEx(project);
+            if (null == exs) {
+                processMap.put(project, new IProcess[0]);
+                return null;
+            }
+            final IProcess[] processes = new IProcess[exs.length];
             int i = 0;
             for (BaseExtension aBaseEx : exs) {
                 IProcessFactory factory = processFactoryProvider.createFactory(project, aBaseEx);
@@ -106,35 +112,40 @@ class ModulesConfigPlugin extends BasePlugin {
                 }
                 IProcess aProcess = factory.createProcess(project, aBaseEx);
                 processes[i] = aProcess;
-                LogMe.D("创建Process：" + aProcess.toString());
+                LogMe.D(project.getName() + " == 创建Process：" + aProcess.getClass().getSimpleName());
             }
             processMap.put(project, processes);
         }
-        return processes;
+        IProcess[] iProcesses = processMap.get(project);
+        if(iProcesses.length == 0){
+            return null;
+        }
+        return iProcesses;
     }
 
+    @Nullable
     private BaseExtension[] findPluginEx(Project project) {
         final Pair<String, Class<? extends BaseExtension>>[] allEx = getMyExtension();
         if (null == allEx) {
             return null;
         }
         final Project rootProject = project.getRootProject();
-        final BaseExtension[] result = new BaseExtension[allEx.length];
+        final BaseExtension[] tempArr = new BaseExtension[allEx.length];
         int i = 0;
         for (Pair<String, Class<? extends BaseExtension>> aPair : allEx) {
-            BaseExtension aEx = project.getExtensions().findByType(aPair.getValue());
-            if (null == aEx) {
-                aEx = rootProject.getExtensions().findByType(aPair.getValue());
+            BaseExtension aEx = rootProject.getExtensions().findByType(aPair.getValue());
+            if(null != aEx && !aEx.isEmpty()){
+                tempArr[i] = aEx;
+                LogMe.D(aPair.getKey()+" == 参数："+aEx);
             }
-            result[i] = aEx;
             i++;
-            LogMe.D(project.getName()+"参数："+aEx);
         }
+        final BaseExtension[] result = Arrays.stream(tempArr).filter(Objects::nonNull).toArray(BaseExtension[]::new);
         insertDefault(result, project);
         return result;
     }
 
-    private void insertDefault(BaseExtension[] extensions, Project project) {
+    private void insertDefault(@Nullable BaseExtension[] extensions, Project project) {
         if (null == extensions) {
             return;
         }
@@ -149,6 +160,12 @@ class ModulesConfigPlugin extends BasePlugin {
                 AppLibEx appLibEx = (AppLibEx) baseExtension;
                 if (appLibEx.mainAppName == null || appLibEx.mainAppName.trim().length() == 0) {
                     appLibEx.mainAppName = Constants.sDefaultAppName;
+                }
+            }
+            //检测是否开启debug模式
+            if(!LogMe.isDebug){
+                if(baseExtension.buildType == Constants.BUILD_DEBUG){
+                    LogMe.isDebug = true;
                 }
             }
         }
