@@ -1,7 +1,7 @@
 # GradleMoudlePlugin
 模块化开发自动管理插件
 
-#模块管理
+## 模块管理
 在根工程的`build.gradle`中添加：
 
 ```java
@@ -39,7 +39,7 @@ funInject{
 //3 各个 lib 可以独立运行，壳app不能运行。
 ```
 
-#多渠道打包
+## 多渠道打包
 暂时只支持V1签名。
 采用zip文件添加commit信息的形式。
 在根工程的`build.gradle`文件中配置：
@@ -54,6 +54,7 @@ multiChannel{
         }
     }
 }
+```
 采用上述配置后，会有两个多渠道包，最终包的文件名为：
 zfun_huawei_test.apk
 zfun_360_test.apk
@@ -63,4 +64,3 @@ huawei
 
 项目中获取渠道信息代码从下述文件中拿取：
 src/main/java/com.zfun.funmodule/util/ZipUtil.java
-```
