@@ -29,7 +29,7 @@ public class ChannelExtension {
     public String name;//这个类必须有个字段为
     public List<String> childFlavors;//一个元素代表一个唯一标识一个渠道的字符串
 
-    ChannelExtension(String name) {
+    public ChannelExtension(String name) {
         this.name = name;
     }
 }
