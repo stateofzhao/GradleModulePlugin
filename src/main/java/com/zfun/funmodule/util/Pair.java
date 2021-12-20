@@ -1,7 +1,5 @@
 package com.zfun.funmodule.util;
 
-import javafx.beans.NamedArg;
-
 import java.io.Serializable;
 
 public class Pair<K,V> implements Serializable {
@@ -28,12 +26,28 @@ public class Pair<K,V> implements Serializable {
      */
     public V getValue() { return value; }
 
+    public K getLeft() {
+        return this.key;
+    }
+
+    public V getRight() {
+        return this.value;
+    }
+
+    public K getFirst() {
+        return this.key;
+    }
+
+    public V getSecond() {
+        return this.value;
+    }
+
     /**
      * Creates a new pair
      * @param key The key for this pair
      * @param value The value to use for this pair
      */
-    public Pair(@NamedArg("key") K key, @NamedArg("value") V value) {
+    public Pair(K key, V value) {
         this.key = key;
         this.value = value;
     }
@@ -67,6 +81,10 @@ public class Pair<K,V> implements Serializable {
         //  name: a  value: aa
         //  name: aa value: a
         return key.hashCode() * 13 + (value == null ? 0 : value.hashCode());
+    }
+
+    public static <L, R> Pair<L, R> of(L left, R right) {
+        return new Pair<L, R>(left, right);
     }
 
     /**

@@ -2,7 +2,7 @@ package com.zfun.funmodule.processplug;
 
 import com.zfun.funmodule.processplug.extension.MultiChannelEx;
 import com.zfun.funmodule.processplug.process.EmptyProcess;
-import com.zfun.funmodule.processplug.process.MultiChannelV1Process;
+import com.zfun.funmodule.processplug.process.MultiChannelProcess;
 import org.gradle.api.Project;
 
 /**
@@ -14,6 +14,6 @@ public class MultiChannelFactory implements IProcessFactory<MultiChannelEx> {
         if(null == extension){
             return new EmptyProcess();
         }
-        return new MultiChannelV1Process();
+        return new MultiChannelProcess();
     }
 }

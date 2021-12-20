@@ -1,4 +1,4 @@
-package com.zfun.funmodule.util;
+package com.zfun.funmodule.util.androidZipSinger;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -17,9 +17,11 @@ import java.util.zip.ZipFile;
 /**
  * from[https://github.com/seven456/MultiChannelPackageTool/blob/master/library/src/com/android/zgj/multiChannelPackageTool/MCPTool.java]
  * <br/>
+ *  向zip文件中 写入/读取 commit信息。
+ * <P>
  * Created by zfun on 2021/12/14 5:44 PM
  */
-public class ZipUtil {
+public class V1ChannelUtil {
     /**
      * 数据结构体的签名标记
      */
@@ -64,7 +66,6 @@ public class ZipUtil {
         if (data.length > Short.MAX_VALUE) {
             throw new IllegalStateException("Zip comment length > 32767.");
         }
-        LogMe.D("ZipUtil - writeCommit - data = "+data.length);
 
         // Zip文件末尾数据结构：{@see java.util.zip.ZipOutputStream.writeEND}
         RandomAccessFile raf = new RandomAccessFile(zipFilePath, "rw");
@@ -89,7 +90,6 @@ public class ZipUtil {
         Object[] versions = getVersion(raf);
         long index = (long) versions[0];
         String version = (String) versions[1];
-        LogMe.D("ZipUtil - read - version = "+version);
         if (VERSION_1_1.equals(version)) {
             bytes = new byte[1];
             index -= bytes.length;

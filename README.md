@@ -40,8 +40,9 @@ funInject{
 ```
 
 ## 多渠道打包
-暂时只支持V1签名。
-采用zip文件添加commit信息的形式。
+V1签名打包采用的是 360的方案，原项目地址：https://github.com/seven456/MultiChannelPackageTool
+V2签名打包采用的是 美团的方案，原项目地址：https://github.com/Meituan-Dianping/walle
+
 在根工程的`build.gradle`文件中配置：
 ```java
 multiChannel{
@@ -50,17 +51,21 @@ multiChannel{
     subfix = "_test" //多渠道包后缀
     channelConfig{
         Full{
-            childFlavors = ["huawei","360"] //多渠道描述
+            childFlavors = ["meituan","360mark"] //多渠道描述
+            checkChannel = false //打包完成后是否读取下最终apk中的渠道信息和写入的渠道信息相等
+            //以下配置只有V2签名才生效
+            lowMemory = false //
+            extraInfo = ["key1":"value1","key2":"value2"] //除渠道外的额外信息
         }
     }
 }
 ```
 采用上述配置后，会有两个多渠道包，最终包的文件名为：
-zfun_huawei_test.apk
-zfun_360_test.apk
+zfun_meituan_test.apk
+zfun_360mark_test.apk
 在项目中获取到的渠道信息分别为:
-huawei
-360
+meituan
+360mark
 
-项目中获取渠道信息代码从下述文件中拿取：
-src/main/java/com.zfun.funmodule/util/ZipUtil.java
+
+```

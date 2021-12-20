@@ -109,6 +109,7 @@ public abstract class BasePlugin implements Plugin<Project> {
             }
         }
         LogMe.isDebug =isDebug;
+        LogMe.P("当前插件的buildType是否为Debug模式："+LogMe.isDebug);
     }
 
     private void configProject(Project project){

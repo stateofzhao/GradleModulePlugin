@@ -30,6 +30,7 @@ dependencies{
         google()
     }
     implementation 'com.android.tools.build:gradle:3.2.1'
+    implementation 'org.json:json:20171018'
 }
 
 /** buildscript中的声明是 <<<gradle【脚本】自身>>> 需要使用的资源（换句话说就是本项目进行编译时需要的依赖）,

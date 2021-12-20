@@ -5,6 +5,7 @@ import org.gradle.api.Project;
 
 import java.util.Map;
 
+//build.gradle - injectCode = ["modulea":"gradle_code.txt"]
 public class InjectEx extends BaseExtension {
     public Map<String,String> injectCode;
     public String moduleName;
