@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class InjectEx extends BaseExtension {
     public Map<String,String> injectCode;
+    public String moduleName;
 
     public InjectEx(Project project) {
         super(project);

@@ -19,17 +19,18 @@ public class AppLibFactory implements IProcessFactory<AppLibEx> {
         if (null == appLibEx.libName) {
             return new EmptyProcess();
         }
+        final String projectName = project.getName();
         final int runType = appLibEx.runType;
         final String mainAppName = appLibEx.mainAppName;
         //针对mainApp进行处理
-        if (mainAppName.equals(appLibEx.moduleName)) {
+        if (mainAppName.equals(projectName)) {
             if (Constants.sRunTypeModule == runType) {
                 return new RemoveDependencyProcess(appLibEx.libName);
             }
             return new EmptyProcess();
         }
 
-        if (!isInLibName(appLibEx)) {
+        if (!isInLibName(project,appLibEx)) {
             return new EmptyProcess();
         }
 
@@ -44,12 +45,12 @@ public class AppLibFactory implements IProcessFactory<AppLibEx> {
         return new EmptyProcess();
     }
 
-    private boolean isInLibName(BaseExtension extension) {
+    private boolean isInLibName(Project project,BaseExtension extension) {
         AppLibEx appLibEx = (AppLibEx) extension;
         if (null == appLibEx.libName) {
             return false;
         }
-        String myName = extension.moduleName;
+        String myName = project.getName();
         for (String aLibName : appLibEx.libName) {
             if (aLibName.equals(myName)) {
                 return true;

@@ -4,7 +4,6 @@ import org.gradle.api.Project;
 
 public abstract class BaseExtension {
     public int buildType;
-    public String moduleName;
 
     public BaseExtension(Project project){
 

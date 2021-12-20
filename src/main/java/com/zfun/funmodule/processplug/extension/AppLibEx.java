@@ -34,7 +34,6 @@ public class AppLibEx extends BaseExtension {
     public String toString() {
         return "ModulesEx{" +
                 "buildType=" + buildType +
-                ", moduleName='" + moduleName + '\'' +
                 ", mainAppName='" + mainAppName + '\'' +
                 ", libName=" + Arrays.toString(libName) +
                 ", runType=" + runType +

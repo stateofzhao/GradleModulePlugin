@@ -153,9 +153,6 @@ public class ModulesConfigPlugin extends BasePlugin {
             if (null == baseExtension) {
                 continue;
             }
-            if (null == baseExtension.moduleName || baseExtension.moduleName.trim().length() == 0) {
-                baseExtension.moduleName = project.getName();
-            }
             if(baseExtension instanceof AppLibEx){
                 AppLibEx appLibEx = (AppLibEx) baseExtension;
                 if (appLibEx.mainAppName == null || appLibEx.mainAppName.trim().length() == 0) {
