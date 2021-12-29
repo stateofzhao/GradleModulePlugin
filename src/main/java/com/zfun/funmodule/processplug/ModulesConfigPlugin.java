@@ -10,7 +10,6 @@ import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -55,20 +54,6 @@ public class ModulesConfigPlugin extends BasePlugin {
                 continue;
             }
             aProcess.afterEvaluate(project);
-        }
-    }
-
-    @Override
-    protected void buildStarted(Project project, Gradle gradle) {
-        final IProcess[] process = findProcess(project);
-        if(null == process){
-            return;
-        }
-        for (IProcess aProcess:process){
-            if(null == aProcess){
-                continue;
-            }
-            aProcess.buildStarted(project,gradle);
         }
     }
 

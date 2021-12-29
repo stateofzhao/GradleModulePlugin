@@ -25,10 +25,6 @@ public class LibAppProcess implements IProcess {
     }
 
     @Override
-    public void buildStarted(Project project, Gradle gradle) {
-    }
-
-    @Override
     public void buildFinished(Project project, BuildResult buildResult) {
         //build.gradle的还原可以放到 afterEvaluate() 回调中，也是没问题的
         try {

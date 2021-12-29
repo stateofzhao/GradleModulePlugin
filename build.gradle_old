@@ -4,27 +4,17 @@
  不知道是不是由于 gradle版本变化还是咋地，网上搜到的教程把这一部分漏掉了。。
  使用 Java Gradle Plugin Development Plugin 插件来打包本插件 */
 plugins {
-    // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
     id 'java-gradle-plugin'
 }
-
-repositories {
-    // Use Maven Central for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    mavenCentral()
-}
-//必须要有，通过这个来生成 com.zfun.funmodule.gradle.plugin 文件的
+//配置打包信息
 gradlePlugin {
-    // Define the plugin
     plugins {
-        greeting {
+        simplePlugin {
             id = 'com.zfun.funmodule'
             implementationClass = 'com.zfun.funmodule.processplug.ModulesConfigPlugin'
         }
     }
 }//插件定义-----------------------------------------------end
-
-
 
 //写插件需要的------------------------------------------------------------------------------------------------------------start
 apply plugin: 'groovy'
@@ -49,10 +39,10 @@ dependencies{
  然后才会执行剩余的build脚本。
  此外在 buildscript 块中可以使用
  dependencies {
- classpath 'org.apache.commons:commons-csv:1.0'
+    classpath 'org.apache.commons:commons-csv:1.0'
  }
  classpath 这种形式的依赖声明，该classpath声明说明了在执行其余的build脚本时，class loader可以使用这些你提供的依赖项。
- 【在本项目中的代码是引用不到这里面声明的依赖的，是gradle运行时自己用到的依赖】*/
+【在本项目中的代码是引用不到这里面声明的依赖的，是gradle运行时自己用到的依赖】*/
 //buildscript {
 //    //设置依赖源
 //    repositories {
@@ -69,28 +59,28 @@ dependencies{
 //}
 //写插件需要的------------------------------------------------------------------------------------------------------------end
 
-
-
-
-
 //以下内容用于本插件的发布-----------------------------------------------start
-apply plugin: 'maven-publish' //gradle 7.x
-group = "com.zfun.funmodule"
+apply plugin: 'maven'
+repositories {
+    mavenCentral()
+}
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.zfun.funmodule'
-            artifactId = 'GradleMoudlePlugin'
-            version = '1.0.0'
-            from components.java
-        }
-    }
+//调用 Upload#uploadArchives(Closure)方法来发布插件
+//Upload这个类继承自DefaultTask
+uploadArchives{
     repositories {
-        maven {
-            name = 'myRepo'
-            // change to point to your repo, e.g. http://my.org/repo
-            url = uri('./../../repo')
+        mavenDeployer{
+            // 【./表示当前目录 ../表示父目录】所以这句话的意思是放到当前目录的父目录中，也就是本build.gradle所在目录的上一级目录。
+            // PS这里其实也可以写成../repo
+            repository(url: uri('./../../repo'))
+            pom.groupId='com.zfun.funmodule'
+            //pom.artifactId = ''//默认为工程根目录名称
+            pom.version='1.0.0'
+
+            //其它地方引用时，需要下面这样依赖
+            //dependencies {
+            //   classpath 'group:artifactId:3.2.1'
+            //}
         }
     }
 }//以下内容用于本插件的发布-----------------------------------------------end

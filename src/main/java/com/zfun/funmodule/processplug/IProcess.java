@@ -9,7 +9,5 @@ public interface IProcess {
 
     void afterEvaluate(Project project);
 
-    void buildStarted(Project project,Gradle gradle);
-
     void buildFinished(Project project,BuildResult buildResult);
 }

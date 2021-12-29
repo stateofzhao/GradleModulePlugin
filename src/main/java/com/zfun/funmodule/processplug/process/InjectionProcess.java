@@ -60,11 +60,6 @@ public class InjectionProcess implements IProcess {
     }
 
     @Override
-    public void buildStarted(Project project, Gradle gradle) {
-
-    }
-
-    @Override
     public void buildFinished(Project project, BuildResult buildResult) {
         if(!injected){
             return;

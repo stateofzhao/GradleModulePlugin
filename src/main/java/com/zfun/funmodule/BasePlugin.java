@@ -7,7 +7,6 @@ import org.gradle.BuildResult;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 import java.util.Set;
 
@@ -49,10 +48,6 @@ public abstract class BasePlugin implements Plugin<Project> {
 
     }
 
-    protected void buildStarted(Project project,Gradle gradle){
-
-    }
-
     protected void buildFinished(Project project,BuildResult buildResult){
 
     }
@@ -74,13 +69,6 @@ public abstract class BasePlugin implements Plugin<Project> {
                     configInRootProjectHaveExtensionValue(project);
                 }
                 afterEvaluate(project);
-            }
-        });
-
-        project.getGradle().buildStarted(new Action<Gradle>() { //监听不到，因为到这里时已经buildStarted了
-            @Override
-            public void execute(@NonNull Gradle gradle) {
-                buildStarted(project,gradle);
             }
         });
 
@@ -135,12 +123,6 @@ public abstract class BasePlugin implements Plugin<Project> {
                 @Override
                 public void execute(@NonNull Project project) {
                     afterEvaluate(project);
-                }
-            });
-            aProject.getGradle().buildStarted(new Action<Gradle>() {//监听不到
-                @Override
-                public void execute(@NonNull Gradle gradle) {
-                    buildStarted(aProject,gradle);
                 }
             });
             aProject.getGradle().buildFinished(new Action<BuildResult>() {

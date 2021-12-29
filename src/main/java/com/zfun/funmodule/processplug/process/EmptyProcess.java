@@ -17,11 +17,6 @@ public class EmptyProcess implements IProcess {
     }
 
     @Override
-    public void buildStarted(Project project, Gradle gradle) {
-
-    }
-
-    @Override
     public void buildFinished(Project project, BuildResult buildResult) {
 
     }
