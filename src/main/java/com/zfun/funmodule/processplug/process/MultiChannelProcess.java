@@ -140,8 +140,8 @@ public class MultiChannelProcess implements IProcess {
             throw new RuntimeException("V1多渠道打包失败 = 写入的的渠道为 :" + channelStr + "\r\n" + "读取到的渠道为：" + testReadChannel);
         }
     }
-
-    //V2兼容V1签名，如果V2签名的apk安装到 7.0 以下版本的手机上时，V2签名块写入的信息仍然在，所以仍然可以读取到此处写入大zip文件中的信息
+    //V2签名时打出的zip包根V1签名打出的zip包结构不一样，但是仍然支持安装到只支持V1签名的系统上，V2写入到zip包中的签名信息仍然有效，并可以被读取。
+    //V2兼容V1签名，如果V2签名的apk安装到 7.0 以下版本的手机上时，V2签名块写入的信息仍然在，所以仍然可以读取到此处写入大zip文件中的信息。
     private void optUseV2(File apkPath, String channelStr, boolean check, boolean useLowMemory, Map<String,String> extraInfo) throws Exception{
         boolean isOk = checkV2Signature(apkPath);
         if (isOk) {
