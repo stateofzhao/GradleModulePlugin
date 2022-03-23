@@ -65,6 +65,11 @@ public class RemoveDependencyProcess implements IProcess {
     }
 
     @Override
+    public void projectsEvaluated(Project project) {
+
+    }
+
+    @Override
     public void buildFinished(Project project, BuildResult buildResult) {
         try {
             if(needRecover){

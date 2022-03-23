@@ -22,8 +22,7 @@ public class InjectEx extends BaseExtension {
     @Override
     public String toString() {
         return "InjectEx{" +
-                "buildType=" + buildType +
-                ", moduleName='" + moduleName + '\'' +
+                "moduleName='" + moduleName + '\'' +
                 ", injectCode=" + injectCode +
                 '}';
     }

@@ -9,5 +9,7 @@ public interface IProcess {
 
     void afterEvaluate(Project project);
 
+    void projectsEvaluated(Project project);
+
     void buildFinished(Project project,BuildResult buildResult);
 }

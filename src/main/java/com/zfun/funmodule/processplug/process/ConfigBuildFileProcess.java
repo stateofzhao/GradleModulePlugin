@@ -43,6 +43,11 @@ public class ConfigBuildFileProcess implements IProcess {
     }
 
     @Override
+    public void projectsEvaluated(Project project) {
+
+    }
+
+    @Override
     public void buildFinished(Project project, BuildResult buildResult) {
 
     }

@@ -18,7 +18,6 @@ import com.zfun.funmodule.util.androidZipSinger.write.ChannelWriter;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.BuildResult;
 import org.gradle.api.*;
-import org.gradle.api.invocation.Gradle;
 
 import java.io.File;
 import java.util.Map;
@@ -39,6 +38,11 @@ public class MultiChannelProcess implements IProcess {
 
     @Override
     public void afterEvaluate(Project project) {
+
+    }
+
+    @Override
+    public void projectsEvaluated(Project project) {
         AppPlugin androidAppPlug = project.getPlugins().findPlugin(AppPlugin.class);
         if (null == androidAppPlug) {//只有app插件才起作用
             return;
@@ -102,13 +106,13 @@ public class MultiChannelProcess implements IProcess {
 
                     final File oriOutputFile = applicationVariant.getOutputs().stream().findFirst().get().getOutputFile();
                     final String apkName = FilenameUtils.removeExtension(oriOutputFile.getName());
-                    final String apkPath = FilenameUtils.getFullPathNoEndSeparator(oriOutputFile.getAbsolutePath());
+                    final String apkPath = FilenameUtils.getFullPath(oriOutputFile.getAbsolutePath());
 
                     final boolean isV2Enable = applicationVariant.getSigningConfig().isV2SigningEnabled();
                     final boolean isV1Enable = applicationVariant.getSigningConfig().isV1SigningEnabled();
                     for (String aChannel : channels) {
                         LogMe.D("startMultiCreateApk work = " + aChannel);
-                        final String finalOutFileFullPath = apkPath + "/" + prefix + aChannel + subfix + ".apk";
+                        final String finalOutFileFullPath = apkPath + prefix + aChannel + subfix + ".apk";
                         final File desOutFile = new File(finalOutFileFullPath);
                         if (desOutFile.exists()) {
                             desOutFile.delete();

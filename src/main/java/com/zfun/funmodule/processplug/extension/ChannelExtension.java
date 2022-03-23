@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 需要在application的build.gradle中配置。
  * {@link  MultiChannelEx}的【配置容器】扩展。<br/>
  * 实现下面这中配置：
  * <pre>
@@ -19,10 +20,7 @@ import java.util.Map;
  * </code>
  * </pre>
  * <br/>
- * 这个类不能写成内部类，静态内部类也不行。
- *
  * <br/>
- * build.gradle -
  * <pre>
  *  multiChannel{
  *     buildType = 1

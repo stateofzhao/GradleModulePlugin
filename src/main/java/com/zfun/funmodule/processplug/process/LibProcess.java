@@ -60,6 +60,11 @@ public class LibProcess implements IProcess {
     }
 
     @Override
+    public void projectsEvaluated(Project project) {
+
+    }
+
+    @Override
     public void buildFinished(Project project, BuildResult buildResult) {
         //manifest的还原一定要在这里，因为build.gradle解析完毕后 android 插件会根据build.gradle中指定的Manifest文件来进行编译
         try {

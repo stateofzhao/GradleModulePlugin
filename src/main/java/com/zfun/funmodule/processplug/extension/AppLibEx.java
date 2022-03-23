@@ -33,8 +33,7 @@ public class AppLibEx extends BaseExtension {
     @Override
     public String toString() {
         return "ModulesEx{" +
-                "buildType=" + buildType +
-                ", mainAppName='" + mainAppName + '\'' +
+                "mainAppName='" + mainAppName + '\'' +
                 ", libName=" + Arrays.toString(libName) +
                 ", runType=" + runType +
                 '}';

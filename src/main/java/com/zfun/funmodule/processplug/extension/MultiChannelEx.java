@@ -5,6 +5,39 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 
+/**
+ * 需要在application的build.gradle中配置。
+ * 实现下面这中配置：
+ * <pre>
+ * <code>
+ * productFlavors {
+ *         demo {
+ *             dimension "mode"
+ *         }
+ *         full {
+ *             dimension "mode"
+ *         }
+ * }
+ * </code>
+ * </pre>
+ * <br/>
+ * <br/>
+ * <pre>
+ *  multiChannel{
+ *     buildType = 1
+ *     channelConfig{
+ *         Full{
+ *             childFlavors = ["huawei","360"]
+ *             checkChannel = false //打包完成后是否读取下最终apk中的渠道信息和写入的渠道信息相等
+ *             lowMemory = false //
+ *             extraInfo = ["key1":"value1","key2":"value2"] //除渠道外的额外信息
+ *         }
+ *      }
+ *   }
+ * </pre>
+ * <p>
+ * Created by zfun on 2021/12/14 10:56 AM
+ */
 public class MultiChannelEx extends BaseExtension {
     public String prefix;
     public String subfix;

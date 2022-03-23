@@ -1,21 +1,28 @@
 package com.zfun.funmodule;
 
 import com.android.annotations.NonNull;
+import com.zfun.funmodule.processplug.extension.DebugEx;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
+import org.gradle.BuildAdapter;
 import org.gradle.BuildResult;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.invocation.Gradle;
 
 import java.util.Set;
 
 //此插件只可以配置到根目录的build.gradle上！
 //
-//每个build.gradle都对应一个自己的Plugin实例，互不干扰；
-//哪个build.gradle文件中 apply 了插件，哪个build.gradle执行到 apply plugin: 'com.zfun.funmodule' 这行代码时，
+//1.哪个build.gradle文件中 apply 了插件，哪个build.gradle执行到 apply plugin: 'com.zfun.funmodule' 这行代码时，
 // 就会执行到 apply的插件的 apply(Project)方法；
-//不 apply 插件的build.gradle，不会触发 插件的 apply(Project)方法；
+//2.每个build.gradle apply的插件都对应一个自己的Plugin实例，互不干扰，例如，在同一个根Project中 Project A的build.gradle 中apply了插件A，
+// Project B的build.gradle也apply插件A，那么A和B的插件都独立存在互相不干扰；
+//3.不 apply 插件的build.gradle，不会触发 插件的 apply(Project)方法；
+//4.一个插件实体一种类型的Extension只有一个实体对象，比如，在根工程中的build.gradle中apply了插件A，然后在根工程的build.gradle中配置了A的扩展参数Extension 1，
+// 之后又在其子工程的build.gradle中重新配置了A的Extension 1，此时根build.gradle中配置的Extension就会被覆盖。
+// 【这里容易混淆，并不是哪个build.gradle配置Extension，就是哪个build.gradle拥有此Extension，始终只有apply插件的那个build.gradle拥有此Extension】
 public abstract class BasePlugin implements Plugin<Project> {
     protected abstract Pair<String,Class<? extends BaseExtension>>[] getMyExtension();
 
@@ -45,6 +52,10 @@ public abstract class BasePlugin implements Plugin<Project> {
     }
 
     protected void afterEvaluate(Project project){
+
+    }
+
+    protected void projectsEvaluated(Project project){
 
     }
 
@@ -86,14 +97,13 @@ public abstract class BasePlugin implements Plugin<Project> {
             return;
         }
         boolean isDebug = false;
-        for(Pair<String,Class<? extends BaseExtension>> aPair:exs){
+        for (Pair<String, Class<? extends BaseExtension>> aPair : exs) {
             BaseExtension baseExtension = project.getExtensions().findByType(aPair.getValue());
-            if(null == baseExtension){
+            if (null == baseExtension) {
                 continue;
             }
-            if(baseExtension.buildType == Constants.BUILD_DEBUG){
-                isDebug = true;
-                break;
+            if (baseExtension instanceof DebugEx) {
+                isDebug = ((DebugEx) baseExtension).buildType == Constants.BUILD_DEBUG;
             }
         }
         LogMe.isDebug =isDebug;
@@ -109,10 +119,12 @@ public abstract class BasePlugin implements Plugin<Project> {
     //给所有子Project注册 回调
     private void addSubProjectListener(Project project){
         Set<Project> projects = project.getAllprojects();
+        LogMe.P("包含几个Project ==== "+projects.size());
         for(final Project aProject:projects){
             if(isRootProject(aProject)){
                 continue;
             }
+            LogMe.P("addSubProjectListener - projectName ==== "+aProject.getName());
             aProject.beforeEvaluate(new Action<Project>() {
                 @Override
                 public void execute(@NonNull Project project) {
@@ -125,6 +137,14 @@ public abstract class BasePlugin implements Plugin<Project> {
                     afterEvaluate(project);
                 }
             });
+            //注意区分gradle#projectsEvaluated()生命周期和上面的Project的afterEvaluate()生命周期。
+            //gradle#projectsEvaluated() 会在根工程包含的所有project的afterEvaluate()后回调。
+            aProject.getGradle().addBuildListener(new BuildAdapter(){
+                @Override
+                public void projectsEvaluated(Gradle gradle) {
+                    BasePlugin.this.projectsEvaluated(aProject);
+                }
+            });
             aProject.getGradle().buildFinished(new Action<BuildResult>() {
                 @Override
                 public void execute(@NonNull BuildResult buildResult) {
@@ -135,6 +155,6 @@ public abstract class BasePlugin implements Plugin<Project> {
     }
 
     final protected boolean isRootProject(Project project){
-        return project.getRootProject() == project;
+        return project.getRootProject().getName().equals(project.getName());
     }
 }

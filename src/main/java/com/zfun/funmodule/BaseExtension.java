@@ -3,8 +3,6 @@ package com.zfun.funmodule;
 import org.gradle.api.Project;
 
 public abstract class BaseExtension {
-    public int buildType;
-
     public BaseExtension(Project project){
 
     }

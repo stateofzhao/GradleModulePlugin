@@ -11,7 +11,7 @@ buildscript {
         }
     }
 }
-apply plugin: 'com.zfei.funmodule'
+apply plugin: 'com.zfei.funmodule'//必须声明到根工程的build.gradle中
 
 funAppLib {
     mainAppName = "app"	//主（壳）工程的module名称

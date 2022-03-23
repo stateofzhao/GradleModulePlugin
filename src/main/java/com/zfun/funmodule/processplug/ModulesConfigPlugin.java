@@ -4,8 +4,10 @@ import com.zfun.funmodule.BaseExtension;
 import com.zfun.funmodule.BasePlugin;
 import com.zfun.funmodule.Constants;
 import com.zfun.funmodule.processplug.extension.AppLibEx;
+import com.zfun.funmodule.processplug.extension.DebugEx;
 import com.zfun.funmodule.processplug.extension.InjectEx;
 import com.zfun.funmodule.processplug.extension.MultiChannelEx;
+import com.zfun.funmodule.processplug.process.EmptyProcess;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
 import org.gradle.BuildResult;
@@ -16,6 +18,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+//扩展方法，两步搞定：
+//1，定义一个Extension，需要继承自BaseExtension，并修改 getMyExtension() 方法，将定义的Extension添加进来。
+//2，在 FactoryProvider#createFactory() 方法来生成你的IProcessFactory。
+//3，实现IProcess来实现梦想吧。
 
 //使用IProcess来处理事务
 public class ModulesConfigPlugin extends BasePlugin {
@@ -29,13 +36,13 @@ public class ModulesConfigPlugin extends BasePlugin {
 
     @Override
     protected void beforeEvaluate(Project project) {
-        LogMe.D("beforeEvaluate == "+project.getName());
+        LogMe.D("beforeEvaluate == " + project.getName());
         final IProcess[] process = findProcess(project);
-        if(null == process){
+        if (null == process) {
             return;
         }
-        for (IProcess aProcess:process){
-            if(null == aProcess){
+        for (IProcess aProcess : process) {
+            if (null == aProcess) {
                 continue;
             }
             aProcess.beforeEvaluate(project);
@@ -44,13 +51,13 @@ public class ModulesConfigPlugin extends BasePlugin {
 
     @Override
     protected void afterEvaluate(Project project) {
-        LogMe.D("afterEvaluate == "+project.getName());
+        LogMe.D("afterEvaluate == " + project.getName());
         final IProcess[] process = findProcess(project);
-        if(null == process){
+        if (null == process) {
             return;
         }
-        for (IProcess aProcess:process){
-            if(null == aProcess){
+        for (IProcess aProcess : process) {
+            if (null == aProcess) {
                 continue;
             }
             aProcess.afterEvaluate(project);
@@ -58,16 +65,32 @@ public class ModulesConfigPlugin extends BasePlugin {
     }
 
     @Override
-    protected void buildFinished(Project project, BuildResult buildResult) {
+    protected void projectsEvaluated(Project project) {
+        LogMe.D("projectsEvaluated == " + project.getName());
         final IProcess[] process = findProcess(project);
-        if(null == process){
+        if (null == process) {
             return;
         }
-        for (IProcess aProcess:process){
-            if(null == aProcess){
+        for (IProcess aProcess : process) {
+            if (null == aProcess) {
                 continue;
             }
-            aProcess.buildFinished(project,buildResult);
+            aProcess.projectsEvaluated(project);
+        }
+    }
+
+    @Override
+    protected void buildFinished(Project project, BuildResult buildResult) {
+        LogMe.D("buildFinished == " + project.getName());
+        final IProcess[] process = findProcess(project);
+        if (null == process) {
+            return;
+        }
+        for (IProcess aProcess : process) {
+            if (null == aProcess) {
+                continue;
+            }
+            aProcess.buildFinished(project, buildResult);
         }
     }
 
@@ -76,33 +99,41 @@ public class ModulesConfigPlugin extends BasePlugin {
         return new Pair[]{
                 new Pair<>(Constants.sAppLibExtensionName, AppLibEx.class),
                 new Pair<>(Constants.sInjectExtensionName, InjectEx.class),
-                new Pair<>(Constants.sMultiChannelExName, MultiChannelEx.class)
+                new Pair<>(Constants.sMultiChannelExName, MultiChannelEx.class),
+                new Pair<>(Constants.sDebugExtensionName, DebugEx.class)
         };
     }
 
     @Nullable
     private IProcess[] findProcess(Project project) {
+        LogMe.D("findProcess："+project.getName());
         if (!processMap.containsKey(project)) {
-            final BaseExtension[] exs = findPluginEx(project);
+            final BaseExtension[] exs = findPluginEx(project);//获取根build.gradle中的配置参数
             if (null == exs) {
                 processMap.put(project, new IProcess[0]);
                 return null;
             }
+            boolean createProcess = false;
             final IProcess[] processes = new IProcess[exs.length];
             int i = 0;
             for (BaseExtension aBaseEx : exs) {
-                IProcessFactory factory = processFactoryProvider.createFactory(project, aBaseEx);
+                final IProcessFactory factory = processFactoryProvider.createFactory(project, aBaseEx);
                 if (null == factory) {
                     continue;
                 }
-                IProcess aProcess = factory.createProcess(project, aBaseEx);
+                final IProcess aProcess = factory.createProcess(project, aBaseEx);
+                if(null != aProcess && !(aProcess instanceof EmptyProcess)){
+                    createProcess = true;
+                }
                 processes[i] = aProcess;
-                LogMe.D(project.getName() + " == 创建Process：" + aProcess.getClass().getSimpleName());
+                LogMe.D("创建Process："+project.getName() + " == " + aProcess.getClass().getSimpleName());
             }
-            processMap.put(project, processes);
+            if (createProcess) {
+                processMap.put(project, processes);//将根根build.gradle的参数生成Process设置给子Project
+            }
         }
         IProcess[] iProcesses = processMap.get(project);
-        if(iProcesses.length == 0){
+        if (null == iProcesses || iProcesses.length == 0) {
             return null;
         }
         return iProcesses;
@@ -114,19 +145,42 @@ public class ModulesConfigPlugin extends BasePlugin {
         if (null == allEx) {
             return null;
         }
+        //根Project配置参数
         final Project rootProject = project.getRootProject();
-        final BaseExtension[] tempArr = new BaseExtension[allEx.length];
+        final BaseExtension[] tempArr_root = new BaseExtension[allEx.length];
         int i = 0;
         for (Pair<String, Class<? extends BaseExtension>> aPair : allEx) {
             BaseExtension aEx = rootProject.getExtensions().findByType(aPair.getValue());
-            if(null != aEx && !aEx.isEmpty()){
-                tempArr[i] = aEx;
-                LogMe.D(aPair.getKey()+" == 参数："+aEx);
+            if (null != aEx && !aEx.isEmpty()) {
+                tempArr_root[i] = aEx;
+                LogMe.D("根Project的参数：" + aPair.getKey() + " == " + aEx);
             }
             i++;
         }
-        final BaseExtension[] result = Arrays.stream(tempArr).filter(Objects::nonNull).toArray(BaseExtension[]::new);
+
+        //下面为错误代码 ------------
+        /*//查找自己的配置参数，如果有就覆盖掉根Project的配置参数
+        final BaseExtension[] tempArr_me = new BaseExtension[allEx.length];
+        i = 0;
+        for (Pair<String, Class<? extends BaseExtension>> aPair : allEx) {
+            BaseExtension aEx = project.getExtensions().findByType(aPair.getValue());
+            if (null != aEx && !aEx.isEmpty()) {
+                tempArr_me[i] = aEx;
+                LogMe.D(project.getName() + "的参数：" + aPair.getKey() + " == " + aEx);
+            }
+            i++;
+        }
+        //最终合并
+        for (int j = 0; j < allEx.length; j++) {
+            BaseExtension meEx = tempArr_me[j];
+            if (meEx != null) {
+                tempArr_root[j] = meEx;
+            }
+        }*///------------
+
+        final BaseExtension[] result = Arrays.stream(tempArr_root).filter(Objects::nonNull).toArray(BaseExtension[]::new);
         insertDefault(result, project);
+        LogMe.D("根Project的参数大小：" + result.length);
         return result;
     }
 
@@ -138,16 +192,10 @@ public class ModulesConfigPlugin extends BasePlugin {
             if (null == baseExtension) {
                 continue;
             }
-            if(baseExtension instanceof AppLibEx){
+            if (baseExtension instanceof AppLibEx) {
                 AppLibEx appLibEx = (AppLibEx) baseExtension;
                 if (appLibEx.mainAppName == null || appLibEx.mainAppName.trim().length() == 0) {
                     appLibEx.mainAppName = Constants.sDefaultAppName;
-                }
-            }
-            //检测是否开启debug模式
-            if(!LogMe.isDebug){
-                if(baseExtension.buildType == Constants.BUILD_DEBUG){
-                    LogMe.isDebug = true;
                 }
             }
         }
