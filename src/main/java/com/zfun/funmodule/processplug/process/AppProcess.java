@@ -4,7 +4,6 @@ import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.util.FileUtil;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 import java.io.IOException;
 
@@ -15,6 +14,7 @@ public class AppProcess implements IProcess {
     @Override
     public void beforeEvaluate(Project project) {
         try {
+            /*LogMe.D("AppProcess = Project = "+project.getName() + " === beforeEvaluate()");*/
             needRecover = FileUtil.replaceFileText(project.getBuildFile(), "com\\.android\\.library", "com.android.application");
         } catch (IOException e) {
             //

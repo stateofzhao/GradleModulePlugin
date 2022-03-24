@@ -11,6 +11,9 @@ public class InjectFactory implements IProcessFactory<InjectEx> {
         if (null == extension || null == extension.injectCode || extension.injectCode.size() == 0) {
             return new EmptyProcess();
         }
+        if(extension.injectCode.get(project.getName()) == null){
+            return new EmptyProcess();
+        }
         return new InjectionProcess(extension);
     }
 }

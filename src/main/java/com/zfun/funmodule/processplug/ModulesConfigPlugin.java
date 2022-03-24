@@ -45,6 +45,7 @@ public class ModulesConfigPlugin extends BasePlugin {
             if (null == aProcess) {
                 continue;
             }
+            LogMe.D("beforeEvaluate == " + project.getName() +" == 执行aProcess："+aProcess.getClass().getSimpleName()+" beforeEvaluate()");
             aProcess.beforeEvaluate(project);
         }
     }
@@ -60,6 +61,7 @@ public class ModulesConfigPlugin extends BasePlugin {
             if (null == aProcess) {
                 continue;
             }
+            LogMe.D("afterEvaluate == " + project.getName() +" == 执行aProcess："+aProcess+" afterEvaluate()");
             aProcess.afterEvaluate(project);
         }
     }
@@ -75,6 +77,7 @@ public class ModulesConfigPlugin extends BasePlugin {
             if (null == aProcess) {
                 continue;
             }
+            LogMe.D("projectsEvaluated == " + project.getName() +" == 执行aProcess："+aProcess+" projectsEvaluated()");
             aProcess.projectsEvaluated(project);
         }
     }
@@ -90,6 +93,7 @@ public class ModulesConfigPlugin extends BasePlugin {
             if (null == aProcess) {
                 continue;
             }
+            LogMe.D("buildFinished == " + project.getName() +" == 执行aProcess："+aProcess+" buildFinished()");
             aProcess.buildFinished(project, buildResult);
         }
     }
@@ -126,6 +130,7 @@ public class ModulesConfigPlugin extends BasePlugin {
                     createProcess = true;
                 }
                 processes[i] = aProcess;
+                i++;
                 LogMe.D("创建Process："+project.getName() + " == " + aProcess.getClass().getSimpleName());
             }
             if (createProcess) {

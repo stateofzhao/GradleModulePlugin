@@ -35,7 +35,7 @@ public abstract class BasePlugin implements Plugin<Project> {
         //一个"串行"build.gradle上只能存在一个同名的Extension，比如此Extension，已经在 根build.gradle 创建了，
         // 那么就不能在 子build.gradle 上面再次创建与此同名的Extension了。<br/>
 
-        //由于上面的判断，只有只对 根build.gradle 起作用，所以下面这个Extension只有 根build.gradle 有，
+        //由于上面的判断，只有只对 根 build.gradle 起作用，所以下面这个Extension只有 根build.gradle 有，
         // 所有在 子build.gradle 对此Extension的赋值都是对 根build.gradle Extension值的覆盖。<br/>
 
         //在 apply() 方法中是获取不到 Extension 的值的！但是Task中可以（doFirst()中也不可以获取到）

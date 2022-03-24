@@ -42,18 +42,18 @@ public class RemoveDependencyProcess implements IProcess {
             FileUtil.copy(srcBuildGradle, desBuildGradle);
 
             final String oriText = FileUtil.getText(project.getBuildFile());
-            String replaceText = oriText;
+            String replaceText = oriText.replaceAll("com\\.android\\.application", "com.android.library");
             for (String aLibName : libName) {
                 String regex = Constants.sDefaultDependenciesRegexPre+aLibName+Constants.sDefaultDependenciesRegexEnd;
                 replaceText = replaceText.replaceAll(regex,"");
-                LogMe.D("正则表达式："+regex);
+               /* LogMe.D("正则表达式："+regex);*/
             }
             needRecover = !oriText.equals(replaceText);
             if(needRecover){
                 FileUtil.write(project.getBuildFile(), replaceText);
             }
-            LogMe.D("修改完app-build.gradle后的内容：");
-            LogMe.D(replaceText);
+           /* LogMe.D("修改完app-build.gradle后的内容：");
+            LogMe.D(replaceText);*/
         } catch (Exception e) {
             LogMe.D("RemoveDependencyProcess-beforeEvaluate- Exception："+e.getLocalizedMessage());
         }
