@@ -57,8 +57,6 @@ multiChannel{
 ```
 
 采用上述配置后，会有两个多渠道包，最终包的文件名为：
-zfun_meituan_test.apk
-zfun_360mark_test.apk
+zfun_meituan_test.apk  zfun_360mark_test.apk
 在项目中获取到的渠道信息分别为:
-meituan
-360mark
+meituan  360mark
