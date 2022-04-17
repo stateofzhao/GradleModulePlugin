@@ -1,6 +1,5 @@
 package com.zfun.funmodule;
 
-import com.android.annotations.NonNull;
 import com.zfun.funmodule.processplug.extension.DebugEx;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
@@ -10,6 +9,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.invocation.Gradle;
+import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
 
 import java.util.Set;
 

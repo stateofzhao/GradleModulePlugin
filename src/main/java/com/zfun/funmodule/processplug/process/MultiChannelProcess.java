@@ -1,6 +1,5 @@
 package com.zfun.funmodule.processplug.process;
 
-import com.android.annotations.NonNull;
 import com.android.apksig.ApkVerifier;
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.api.ApplicationVariant;
@@ -15,9 +14,10 @@ import com.zfun.funmodule.util.androidZipSinger.V1ChannelUtil;
 import com.zfun.funmodule.util.androidZipSinger.read.ChannelInfo;
 import com.zfun.funmodule.util.androidZipSinger.read.ChannelReader;
 import com.zfun.funmodule.util.androidZipSinger.write.ChannelWriter;
-import org.apache.commons.io.FilenameUtils;
 import org.gradle.BuildResult;
 import org.gradle.api.*;
+import org.gradle.internal.impldep.org.apache.commons.io.FilenameUtils;
+import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
 
 import java.io.File;
 import java.util.Map;

@@ -26,7 +26,7 @@ dependencies{
         mavenLocal()
         google()
     }
-    implementation 'com.android.tools.build:gradle:3.2.1'
+    implementation 'com.android.tools.build:gradle:7.0.0'
     implementation 'org.json:json:20171018'
 }
 
@@ -62,7 +62,7 @@ def VCS_URL = 'https://github.com/stateofzhao/GradleMoudlePlugin.git'
 def POM_NAME = 'GradleModulePlugin'
 def POM_DESC = 'android moudle lib app manager plugin'
 def GROUP = 'io.github.stateofzhao'
-def VERSION_NAME = '1.0.0-SNAPSHOT'
+def VERSION_NAME = '1.1.0-SNAPSHOT'
 def PLUGIN_ID = 'io.github.stateofzhao'
 
 group = GROUP                   //指定仓库的groupId
@@ -74,17 +74,17 @@ def isReleaseVersion = !version.endsWith("SNAPSHOT")
 //生成二进制插件----------------------------------------------start
 //通过这个来生成 xxx.gradle.plugin 文件的，xxx通过下面的id属性配置；
 //调用方通过：apply plugin: 'xxx' 来引用这个 xxx.gradle.plugin文件，如果发布到Gradle官方插件库的话，可以直接通过plugins{id 'xxx'}来快速引用；
-gradlePlugin {
-    // Define the plugin
-    plugins {
-        funmodule {
-            id = PLUGIN_ID
-            implementationClass = 'com.zfun.funmodule.processplug.ModulesConfigPlugin'
-            displayName = POM_NAME
-            description = POM_DESC
-        }
-    }
-}//生成二进制插件-----------------------------------------------end
+//gradlePlugin {
+//    // Define the plugin
+//    plugins {
+//        funmodule {
+//            id = PLUGIN_ID
+//            implementationClass = 'com.zfun.funmodule.processplug.ModulesConfigPlugin'
+//            displayName = POM_NAME
+//            description = POM_DESC
+//        }
+//    }
+//}//生成二进制插件-----------------------------------------------end
 
 //批量配置插件的描述信息
 pluginBundle {
@@ -113,6 +113,8 @@ pluginBundle {
 
 //--------------------------------------------------------------------------------------------以Maven形式发布---start
 //Maven形式发布时，必须通过 buildscript block 方式来引用插件，插件Id通过 `main/resources/META-INF/gradle-plugins` 方式来声明；
+//artifactId 默认为工程名称：GradleModulePlugin。最终引用方式为：
+//buildscript{dependencies{classpath '${group}:${artifactId}:${version}'}}
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = "sources"
