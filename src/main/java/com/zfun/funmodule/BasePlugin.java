@@ -9,7 +9,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.invocation.Gradle;
-import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
 
 import java.util.Set;
 
@@ -27,7 +26,7 @@ public abstract class BasePlugin implements Plugin<Project> {
     protected abstract Pair<String,Class<? extends BaseExtension>>[] getMyExtension();
 
     @Override
-    public void apply(@NonNull Project project) {//梦开始的地方
+    public void apply(Project project) {//梦开始的地方
         if(!isRootProject(project)){ //只有 根build.gradle 起作用
             return;
         }
@@ -69,13 +68,13 @@ public abstract class BasePlugin implements Plugin<Project> {
         //-----------------------配置rootProject的监听
         project.beforeEvaluate(new Action<Project>() {//这个是监听不到的，以为此时rootProject已经开始Evaluate了
             @Override
-            public void execute(@NonNull Project project) {
+            public void execute(Project project) {
 
             }
         });
         project.afterEvaluate(new Action<Project>() {
             @Override
-            public void execute(@NonNull Project project) {
+            public void execute(Project project) {
                 if(isRootProject(project)){//根据配置的扩展参数来初始化一些东西
                     configInRootProjectHaveExtensionValue(project);
                 }
@@ -85,7 +84,7 @@ public abstract class BasePlugin implements Plugin<Project> {
 
         project.getGradle().buildFinished(new Action<BuildResult>() {
             @Override
-            public void execute(@NonNull BuildResult buildResult) {
+            public void execute(BuildResult buildResult) {
                 buildFinished(project,buildResult);
             }
         });
@@ -127,13 +126,13 @@ public abstract class BasePlugin implements Plugin<Project> {
             LogMe.P("addSubProjectListener - projectName ==== "+aProject.getName());
             aProject.beforeEvaluate(new Action<Project>() {
                 @Override
-                public void execute(@NonNull Project project) {
+                public void execute(Project project) {
                     beforeEvaluate(project);
                 }
             });
             aProject.afterEvaluate(new Action<Project>() {
                 @Override
-                public void execute(@NonNull Project project) {
+                public void execute(Project project) {
                     afterEvaluate(project);
                 }
             });
@@ -147,7 +146,7 @@ public abstract class BasePlugin implements Plugin<Project> {
             });
             aProject.getGradle().buildFinished(new Action<BuildResult>() {
                 @Override
-                public void execute(@NonNull BuildResult buildResult) {
+                public void execute(BuildResult buildResult) {
                     buildFinished(aProject,buildResult);
                 }
             });

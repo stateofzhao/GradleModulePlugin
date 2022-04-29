@@ -62,7 +62,7 @@ def VCS_URL = 'https://github.com/stateofzhao/GradleMoudlePlugin.git'
 def POM_NAME = 'GradleModulePlugin'
 def POM_DESC = 'android moudle lib app manager plugin'
 def GROUP = 'io.github.stateofzhao'
-def VERSION_NAME = '1.1.0-SNAPSHOT'
+def VERSION_NAME = '1.1.1-SNAPSHOT'
 def PLUGIN_ID = 'io.github.stateofzhao'
 
 group = GROUP                   //指定仓库的groupId
