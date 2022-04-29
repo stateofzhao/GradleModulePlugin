@@ -9,6 +9,7 @@ import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.processplug.extension.ChannelExtension;
 import com.zfun.funmodule.processplug.extension.MultiChannelEx;
 import com.zfun.funmodule.util.FileUtil;
+import com.zfun.funmodule.util.FilenameUtils;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.androidZipSinger.V1ChannelUtil;
 import com.zfun.funmodule.util.androidZipSinger.read.ChannelInfo;
@@ -16,8 +17,6 @@ import com.zfun.funmodule.util.androidZipSinger.read.ChannelReader;
 import com.zfun.funmodule.util.androidZipSinger.write.ChannelWriter;
 import org.gradle.BuildResult;
 import org.gradle.api.*;
-import org.gradle.internal.impldep.org.apache.commons.io.FilenameUtils;
-import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
 
 import java.io.File;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class MultiChannelProcess implements IProcess {
         final DomainObjectSet<ApplicationVariant> applicationVariants = androidEx.getApplicationVariants();
         applicationVariants.all(new Action<ApplicationVariant>() {
             @Override
-            public void execute(@NonNull ApplicationVariant applicationVariant) {
+            public void execute(ApplicationVariant applicationVariant) {
                 final Object ex = project.getRootProject().getExtensions().findByName(Constants.sMultiChannelExName);
                 if (!(ex instanceof MultiChannelEx)) {
                     return;
@@ -91,13 +90,13 @@ public class MultiChannelProcess implements IProcess {
 
     }
 
-    private void starCreateMultiChannelApk(@NonNull final Project project,
-                                           @NonNull final ApplicationVariant applicationVariant,
-                                           @NonNull final MultiChannelEx multiChannelEx,
-                                           @NonNull final ChannelExtension channelEx) {
+    private void starCreateMultiChannelApk(final Project project,
+                                           final ApplicationVariant applicationVariant,
+                                           final MultiChannelEx multiChannelEx,
+                                           final ChannelExtension channelEx) {
         applicationVariant.getAssemble().doLast(new Action<Task>() {//打包后进行多渠道配置
             @Override
-            public void execute(@NonNull Task task) {
+            public void execute(Task task) {
                 LogMe.D("startMultiCreateApk getAssemble.doLast = " + task.getName());
                 try {
                     final String prefix = multiChannelEx.prefix;
@@ -110,6 +109,7 @@ public class MultiChannelProcess implements IProcess {
 
                     final boolean isV2Enable = applicationVariant.getSigningConfig().isV2SigningEnabled();
                     final boolean isV1Enable = applicationVariant.getSigningConfig().isV1SigningEnabled();
+                    int sucCount = 0;
                     for (String aChannel : channels) {
                         LogMe.D("startMultiCreateApk work = " + aChannel);
                         final String finalOutFileFullPath = apkPath + prefix + aChannel + subfix + ".apk";
@@ -117,16 +117,23 @@ public class MultiChannelProcess implements IProcess {
                         if (desOutFile.exists()) {
                             desOutFile.delete();
                         }
+                        boolean isOk = false;
                         FileUtil.copy(oriOutputFile, desOutFile);
                         if(isV2Enable){
                             boolean check = channelEx.checkChannel;
                             boolean useLowMemory = channelEx.lowMemory;
                             Map<String,String> extraInfo = channelEx.extraInfo;
-                            optUseV2(desOutFile,aChannel,check,useLowMemory,extraInfo);
+                            isOk =optUseV2(desOutFile,aChannel,check,useLowMemory,extraInfo);
                         } else {
-                            optUseV1(desOutFile,aChannel,"");
+                            isOk = optUseV1(desOutFile,aChannel,"");
+                        }
+                        if(isOk){
+                            sucCount += 1;
                         }
                         LogMe.D("******************************************************");
+                    }
+                    if(sucCount == channels.length){
+                        oriOutputFile.delete();
                     }
                 } catch (Exception e) {
                     LogMe.D("startMultiCreateApk = Exception" + e);
@@ -136,17 +143,18 @@ public class MultiChannelProcess implements IProcess {
     }
 
     //进行zip文件的注释修改
-    private void optUseV1(File apkPath, String channelStr, String passWord) throws Exception{
+    private boolean optUseV1(File apkPath, String channelStr, String passWord) throws Exception{
         V1ChannelUtil.writeCommit(apkPath, channelStr, passWord);
         String testReadChannel = V1ChannelUtil.getChannelId(apkPath.getAbsolutePath(), "", "unKnown");
         LogMe.D("startMultiCreateApk work = optUseV1 = 读取写入的渠道信息 = " + testReadChannel);
         if (!channelStr.equals(testReadChannel)) {
             throw new RuntimeException("V1多渠道打包失败 = 写入的的渠道为 :" + channelStr + "\r\n" + "读取到的渠道为：" + testReadChannel);
         }
+        return true;
     }
     //V2签名时打出的zip包和V1签名打出的zip包虽然结构不一样，但是仍然支持安装到只支持V1签名的系统上，V2写入到zip包中的签名信息仍然有效，并可以被读取。
     //V2兼容V1签名，如果V2签名的apk安装到 7.0 以下版本的手机上时，V2签名块写入的信息仍然在，所以仍然可以读取到此处写入大zip文件中的信息。
-    private void optUseV2(File apkPath, String channelStr, boolean check, boolean useLowMemory, Map<String,String> extraInfo) throws Exception{
+    private boolean optUseV2(File apkPath, String channelStr, boolean check, boolean useLowMemory, Map<String,String> extraInfo) throws Exception{
         boolean isOk = checkV2Signature(apkPath);
         if (isOk) {
             LogMe.D("startMultiCreateApk work = optUseV2 = " + channelStr);
@@ -159,7 +167,9 @@ public class MultiChannelProcess implements IProcess {
                 if(!testReadChannel.equals(channelStr)){
                     throw new RuntimeException("V2多渠道打包失败 = 写入的的渠道为 :" + channelStr + "\r\n" + "读取到的渠道为：" + testReadChannel);
                 }
+                return true;
             }
+            return true;
         } else {
             throw new RuntimeException("V2多渠道打包失败 = apk :" + apkPath + "  未找到V2签名块。");
         }
