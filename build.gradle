@@ -56,15 +56,7 @@ dependencies{
 //}
 //写插件需要的#####################################################################################END
 
-//发布插件需要的#####################################################################################START
-def POM_URL = 'https://github.com/stateofzhao/GradleMoudlePlugin'
-def VCS_URL = 'https://github.com/stateofzhao/GradleMoudlePlugin.git'
-def POM_NAME = 'GradleModulePlugin'
-def POM_DESC = 'android moudle lib app manager plugin'
-def GROUP = 'io.github.stateofzhao'
-def VERSION_NAME = '1.1.1-SNAPSHOT'
-def PLUGIN_ID = 'io.github.stateofzhao'
-
+//发布插件需要的#####################################################################################STAR
 group = GROUP                   //指定仓库的groupId
 version = VERSION_NAME          //发布到仓库的版本
 
@@ -153,26 +145,30 @@ publishing {
     //发布到指定仓库时，仓库信息的描述
     repositories {
         //发布到本地
-        /*maven {
-            url = uri('./../../repo')
-        }*/
-        //发布到OSSRH仓库
-        maven{
-            def releaseUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
-            url = version.endsWith('SNAPSHOT') ? snapshotUrl : releaseUrl
+        if ("true" == publish2Local) {
+            maven {
+                url = uri('./../../repo')
+            }
+        } else {
+            //发布到OSSRH仓库
+            maven {
+                def releaseUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
+                url = version.endsWith('SNAPSHOT') ? snapshotUrl : releaseUrl
 
-            credentials {
-                if (rootProject.hasProperty("ossrhUsername") && rootProject.hasProperty("ossrhPassword")) {
-                    username = rootProject.ossrhUsername
-                    password = rootProject.ossrhPassword
+                credentials {
+                    if (rootProject.hasProperty("ossrhUsername") && rootProject.hasProperty("ossrhPassword")) {
+                        username = rootProject.ossrhUsername
+                        password = rootProject.ossrhPassword
+                    }
                 }
             }
         }
     }
 
-    //发布到 Gradle官方插件库 时不需要签名
+    //Gradle官方插件库（以xxx.gradle.plugin二进制文件形式发布）时不需要签名
     if(!gradle.startParameter.taskNames.contains('publishPlugins')){
+        //gpg签名配置
         signing{
             required { isReleaseVersion }//是否需要签名
             //发布maven仓库时需要签名的所有文件

@@ -1,7 +1,7 @@
 package com.zfun.funmodule.outhelper;
 
 import com.zfun.funmodule.util.androidZipSinger.V1ChannelUtil;
-import com.zfun.funmodule.util.androidZipSinger.read.ChannelInfo;
+import com.zfun.funmodule.util.androidZipSinger.ChannelInfo;
 import com.zfun.funmodule.util.androidZipSinger.read.ChannelReader;
 
 import java.io.File;

@@ -12,13 +12,15 @@ import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.FilenameUtils;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.androidZipSinger.V1ChannelUtil;
-import com.zfun.funmodule.util.androidZipSinger.read.ChannelInfo;
+import com.zfun.funmodule.util.androidZipSinger.ChannelInfo;
 import com.zfun.funmodule.util.androidZipSinger.read.ChannelReader;
 import com.zfun.funmodule.util.androidZipSinger.write.ChannelWriter;
 import org.gradle.BuildResult;
 import org.gradle.api.*;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -119,13 +121,13 @@ public class MultiChannelProcess implements IProcess {
                         }
                         boolean isOk = false;
                         FileUtil.copy(oriOutputFile, desOutFile);
+                        final Map<String,String> extraInfo = channelEx.extraInfo;
                         if(isV2Enable){
                             boolean check = channelEx.checkChannel;
                             boolean useLowMemory = channelEx.lowMemory;
-                            Map<String,String> extraInfo = channelEx.extraInfo;
                             isOk =optUseV2(desOutFile,aChannel,check,useLowMemory,extraInfo);
                         } else {
-                            isOk = optUseV1(desOutFile,aChannel,"");
+                            isOk = optUseV1(desOutFile,aChannel,extraInfo,"");
                         }
                         if(isOk){
                             sucCount += 1;
@@ -143,11 +145,18 @@ public class MultiChannelProcess implements IProcess {
     }
 
     //进行zip文件的注释修改
-    private boolean optUseV1(File apkPath, String channelStr, String passWord) throws Exception{
-        V1ChannelUtil.writeCommit(apkPath, channelStr, passWord);
+    private boolean optUseV1(File apkPath, String channelStr, Map<String,String> extraInfo,String passWord) throws Exception{
+        //build str
+        final Map<String,String> newData = new HashMap<>();
+        if(null != extraInfo && !extraInfo.isEmpty()){
+            newData.putAll(extraInfo);
+        }
+        newData.put(Constants.sChannelKey,channelStr);
+        final JSONObject jsonObject = new JSONObject(newData);
+        V1ChannelUtil.writeCommit(apkPath, jsonObject.toString(), passWord);
         String testReadChannel = V1ChannelUtil.getChannelId(apkPath.getAbsolutePath(), "", "unKnown");
         LogMe.D("startMultiCreateApk work = optUseV1 = 读取写入的渠道信息 = " + testReadChannel);
-        if (!channelStr.equals(testReadChannel)) {
+        if (!channelStr.contains(testReadChannel)) {
             throw new RuntimeException("V1多渠道打包失败 = 写入的的渠道为 :" + channelStr + "\r\n" + "读取到的渠道为：" + testReadChannel);
         }
         return true;
