@@ -1,5 +1,8 @@
 package com.zfun.funmodule.util.androidZipSinger;
 
+import com.zfun.funmodule.Constants;
+import org.json.JSONObject;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
@@ -12,6 +15,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.Key;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 /**
@@ -38,6 +44,63 @@ public class V1ChannelUtil {
      * 加密用的IvParameterSpec参数
      */
     private static final byte[] IV = new byte[] { 1, 3, 1, 4, 5, 2, 0, 1 };
+
+    /**
+     * @param apkPath  apk包路径
+     * @param mcptoolPassword mcptool解密密钥
+     * @param defValue 读取不到时用该值作为默认值
+     * @return
+     */
+    public static String getChannelId(String apkPath, String mcptoolPassword, String defValue) {
+        final String content = readContent(new File(apkPath), mcptoolPassword);
+        if(null == content||content.length()==0){
+            return defValue;
+        }
+        JSONObject jsonObject = new JSONObject(content);
+        return jsonObject.optString(Constants.sChannelKey);
+    }
+
+    /**
+     * 获取打包时写入的额外信息
+     *
+     * @param key 打包时写入的额外信息Map中的key
+     * @param apkPath  apk包路径
+     * @param mcptoolPassword mcptool解密密钥
+     * @param defValue 读取不到时用该值作为默认值
+     * */
+    public static String getExtraInfo(String key,String apkPath, String mcptoolPassword, String defValue){
+        if(null == key||key.length()==0){
+            return defValue;
+        }
+        final String content = readContent(new File(apkPath), mcptoolPassword);
+        if(null == content||content.length()==0){
+            return defValue;
+        }
+        JSONObject jsonObject = new JSONObject(content);
+        return jsonObject.optString(key);
+    }
+
+    /**
+     * @param apkPath  apk包路径
+     * @param mcptoolPassword mcptool解密密钥
+     * @param defValue 读取不到时用该值作为默认值
+     * @return
+     */
+    public static ChannelInfo getChannelInfo(String apkPath, String mcptoolPassword, String defValue) {
+        final String content = readContent(new File(apkPath), mcptoolPassword);
+        if(null == content||content.length()==0){
+            return new ChannelInfo(defValue,new HashMap<>());
+        }
+        final JSONObject jsonObject = new JSONObject(content);
+        final Iterator<String> keys = jsonObject.keys();
+        final Map<String, String> result = new HashMap<>();
+        while (keys.hasNext()) {
+            final String key = keys.next();
+            result.put(key, jsonObject.getString(key));
+        }
+        final String channel = result.remove(Constants.sChannelKey);
+        return new ChannelInfo(channel,result);
+    }
 
     public static void writeCommit(File zipFilePath,String content,String passWord)throws Exception{
         writeCommit(zipFilePath,content.getBytes(CHARSET_NAME),passWord);
@@ -113,7 +176,7 @@ public class V1ChannelUtil {
     }
 
     /**
-     * 读取数据（如：渠道号）
+     * 读取数据JSON格式，其中 {@link com.zfun.funmodule.Constants#sChannelKey} 的value为渠道号
      * @param path 文件路径
      * @param password 解密密钥
      * @return 被该工具写入的数据（如：渠道号）
@@ -124,17 +187,6 @@ public class V1ChannelUtil {
         } catch (Exception ignore) {
         }
         return null;
-    }
-
-    /**
-     * @param apkPath  apk包路径
-     * @param mcptoolPassword mcptool解密密钥
-     * @param defValue 读取不到时用该值作为默认值
-     * @return
-     */
-    public static String getChannelId(String apkPath, String mcptoolPassword, String defValue) {
-        String content = readContent(new File(apkPath), mcptoolPassword);
-        return content == null || content.length() == 0 ? defValue : content;
     }
 
     /**

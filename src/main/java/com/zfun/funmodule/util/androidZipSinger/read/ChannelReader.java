@@ -1,5 +1,7 @@
 package com.zfun.funmodule.util.androidZipSinger.read;
 
+import com.zfun.funmodule.Constants;
+import com.zfun.funmodule.util.androidZipSinger.ChannelInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,7 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public final class ChannelReader {
-    public static final String CHANNEL_KEY = "channel";
+    public static final String CHANNEL_KEY = Constants.sChannelKey;
 
     private ChannelReader() {
         super();

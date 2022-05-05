@@ -1,6 +1,7 @@
 package com.zfun.funmodule;
 
 public class Constants {
+    public static final String sChannelKey = "channel";
     public static final String sBuildTempFile = ".idea";
     public static final String sManifestName = "AndroidManifest.xml";
     public static final String sManifestDir = "/src/main/";

@@ -1,4 +1,4 @@
-package com.zfun.funmodule.util.androidZipSinger.read;
+package com.zfun.funmodule.util.androidZipSinger;
 
 import java.util.Map;
 
