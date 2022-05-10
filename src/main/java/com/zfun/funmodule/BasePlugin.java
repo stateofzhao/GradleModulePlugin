@@ -14,6 +14,9 @@ import java.util.Set;
 
 //此插件只可以配置到根目录的build.gradle上！
 //
+//一次构建（一个Gradle的完整生命周期）是从一个task开始，不管这个task多么简单，都会走完整的Gradle生命周期。
+// 当然task如果依赖其它task，那么会解析所有task的依赖然后从最头的task开执行。
+//
 //1.哪个build.gradle文件中 apply 了插件，哪个build.gradle执行到 apply plugin: 'com.zfun.funmodule' 这行代码时，
 // 就会执行到 apply的插件的 apply(Project)方法；
 //2.每个build.gradle apply的插件都对应一个自己的Plugin实例，互不干扰，例如，在同一个根Project中 Project A的build.gradle 中apply了插件A，
