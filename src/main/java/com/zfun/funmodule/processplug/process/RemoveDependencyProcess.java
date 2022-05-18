@@ -13,10 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 1，更改application插件->lib插件。
- * 2，删除对lib工程的依赖。
- * 3，删除applicationId。
- *
+ * 1，更改application插件->lib插件；
+ * 2，删除对lib工程的依赖；
+ * 3，删除build.gradle中的android{applicationId}；
  * */
 public class RemoveDependencyProcess implements IProcess {
     final String[] libName;
