@@ -20,11 +20,11 @@ public class AppLibFactory implements IProcessFactory<AppLibEx> {
             return new EmptyProcess();
         }
         final String projectName = project.getName();
-        final int runType = appLibEx.runType;
+        final String runType = appLibEx.runType;
         final String mainAppName = appLibEx.mainAppName;
         //针对mainApp进行处理
         if (mainAppName.equals(projectName)) {
-            if (Constants.sRunTypeModule == runType) {
+            if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {
                 return new RemoveDependencyProcess(appLibEx.libName);
             }
             return new EmptyProcess();
@@ -34,13 +34,13 @@ public class AppLibFactory implements IProcessFactory<AppLibEx> {
             return new EmptyProcess();
         }
 
-        if (Constants.sRunTypeApp == runType) {
+        if (Constants.sRunTypeApp.equalsIgnoreCase(runType)) {
             return new LibProcess();
         }
         /*else if (Constants.sRunTypeAll == runType) {
             return new LibAppProcess();
         }*/
-        else if (Constants.sRunTypeModule == runType) {
+        else if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {
             return new AppProcess();
         }
 

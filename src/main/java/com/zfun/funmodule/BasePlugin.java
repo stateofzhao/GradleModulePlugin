@@ -1,8 +1,9 @@
 package com.zfun.funmodule;
 
-import com.zfun.funmodule.processplug.extension.DebugEx;
+import com.zfun.funmodule.processplug.extension.BuildTypeEx;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.Pair;
+import com.zfun.funmodule.util.Util;
 import org.gradle.BuildAdapter;
 import org.gradle.BuildResult;
 import org.gradle.api.Action;
@@ -30,7 +31,7 @@ public abstract class BasePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {//梦开始的地方
-        if(!isRootProject(project)){ //只有 根build.gradle 起作用
+        if(!Util.isRootProject(project)){ //只有 根build.gradle 起作用
             return;
         }
         LogMe.P("插件入口apply ==== "+project.getName());
@@ -49,19 +50,25 @@ public abstract class BasePlugin implements Plugin<Project> {
         configProject(project);
     }
 
+    /**
+     * @param project 此Project beforeEvaluate 时的回调
+     * */
     protected void beforeEvaluate(Project project){
 
     }
 
+    /**
+     * @param project  此Project afterEvaluate 时的回调
+     * */
     protected void afterEvaluate(Project project){
 
     }
 
-    protected void projectsEvaluated(Project project){
+    protected void projectsEvaluated(Gradle gradle){
 
     }
 
-    protected void buildFinished(Project project,BuildResult buildResult){
+    protected void buildFinished(BuildResult buildResult){
 
     }
 
@@ -78,17 +85,24 @@ public abstract class BasePlugin implements Plugin<Project> {
         project.afterEvaluate(new Action<Project>() {
             @Override
             public void execute(Project project) {
-                if(isRootProject(project)){//根据配置的扩展参数来初始化一些东西
+                if(Util.isRootProject(project)){//根据配置的扩展参数来初始化一些东西
                     configInRootProjectHaveExtensionValue(project);
                 }
                 afterEvaluate(project);
             }
         });
 
-        project.getGradle().buildFinished(new Action<BuildResult>() {
+        //注意区分 gradle#projectsEvaluated() 生命周期和上面的 Project 的 afterEvaluate() 生命周期。
+        //gradle#projectsEvaluated() 会在根工程包含的所有 Project 的 afterEvaluate() 后回调。
+        project.getGradle().addBuildListener(new BuildAdapter(){
             @Override
-            public void execute(BuildResult buildResult) {
-                buildFinished(project,buildResult);
+            public void projectsEvaluated(Gradle gradle) {
+                BasePlugin.this.projectsEvaluated(gradle);
+            }
+
+            @Override
+            public void buildFinished(BuildResult buildResult) {
+                BasePlugin.this.buildFinished(buildResult);
             }
         });
     }
@@ -104,8 +118,8 @@ public abstract class BasePlugin implements Plugin<Project> {
             if (null == baseExtension) {
                 continue;
             }
-            if (baseExtension instanceof DebugEx) {
-                isDebug = ((DebugEx) baseExtension).buildType == Constants.BUILD_DEBUG;
+            if (baseExtension instanceof BuildTypeEx) {
+                isDebug = ((BuildTypeEx) baseExtension).debug;
             }
         }
         LogMe.isDebug =isDebug;
@@ -113,17 +127,17 @@ public abstract class BasePlugin implements Plugin<Project> {
     }
 
     private void configProject(Project project){
-        if(isRootProject(project)){
+        if(Util.isRootProject(project)){
             configInRootProjectNoExtensionValue(project);
         }
     }
 
-    //给所有子Project注册 回调
+    //给所有子Project注册回调，目的是所有子Project都可以单独根据回调来处理自己的逻辑，
     private void addSubProjectListener(Project project){
         Set<Project> projects = project.getAllprojects();
         LogMe.P("包含几个Project ==== "+projects.size());
         for(final Project aProject:projects){
-            if(isRootProject(aProject)){
+            if(Util.isRootProject(aProject)){
                 continue;
             }
             LogMe.P("addSubProjectListener - projectName ==== "+aProject.getName());
@@ -139,24 +153,6 @@ public abstract class BasePlugin implements Plugin<Project> {
                     afterEvaluate(project);
                 }
             });
-            //注意区分gradle#projectsEvaluated()生命周期和上面的Project的afterEvaluate()生命周期。
-            //gradle#projectsEvaluated() 会在根工程包含的所有project的afterEvaluate()后回调。
-            aProject.getGradle().addBuildListener(new BuildAdapter(){
-                @Override
-                public void projectsEvaluated(Gradle gradle) {
-                    BasePlugin.this.projectsEvaluated(aProject);
-                }
-            });
-            aProject.getGradle().buildFinished(new Action<BuildResult>() {
-                @Override
-                public void execute(BuildResult buildResult) {
-                    buildFinished(aProject,buildResult);
-                }
-            });
         }
-    }
-
-    final protected boolean isRootProject(Project project){
-        return project.getRootProject().getName().equals(project.getName());
     }
 }

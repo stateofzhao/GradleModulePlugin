@@ -3,21 +3,23 @@
 ```java
 buildscript {
     repositories {
-        maven {
-            url uri('./../../repo')
+        maven { 
+            url 'https://s01.oss.sonatype.org/content/repositories/snapshots' 
         }
         dependencies {
-            classpath 'com.zfei.funmodule:GradleMoudlePlugin:0.0.4'
+            classpath 'io.github.stateofzhao:GradleMoudlePlugin:1.1.6-SNAPSHOT'
         }
     }
 }
 apply plugin: 'com.zfei.funmodule'//必须声明到根工程的build.gradle中
 
 funAppLib {
-    mainAppName = "app"	//主（壳）工程的module名称
-    runType = 1	//有两种类型
-    buildType = 1 //releases时传递2，debug时传递1
-    libName = ["modulea","moduleb"] //作为lib的module名称，注意如果没有界面那么可以不用在这里声明
+    mainAppName = 'app'	//主（壳）工程的module名称
+    runType = 'app'	//有两种类型：'app'、'module'
+    libName = ["modulea","moduleb"] //作为lib的module名称；可选，如果不声明，则取项目所有子工程
+}
+funBuildType{
+    debug = true //true可以看到本插件的打印日志，false不可看到
 }
 funInject{
      injectCode = ["modulea":"gradle_code.txt"]
@@ -27,7 +29,7 @@ funInject{
 **对runType的两种类型重点解释下：**
 
 ```
-//1 只有壳app可以安装运行，所有 lib 的 Manifest 中的 launchActivity 会在build时去掉launch属性，build完成后会重新还原此 Manifest。
-//2 各个 lib 可以独立运行，壳app不能运行。
+//app: 只有壳app可以安装运行，所有 lib 的 Manifest 中的 launchActivity 会在build时去掉launch属性，build完成后会重新还原此 Manifest。
+//module: 各个 lib 可以独立运行，壳app不能运行。
 ```
 

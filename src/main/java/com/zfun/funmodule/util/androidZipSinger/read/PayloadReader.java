@@ -17,6 +17,7 @@ public final class PayloadReader {
     /**
      * get string (UTF-8) by id
      *
+     * @param id 从zip文件何处开始读取
      * @param apkFile apk file
      * @return null if not found
      */
@@ -34,7 +35,7 @@ public final class PayloadReader {
     }
 
     /**
-     * get bytes by id <br/>
+     * get bytes by id <br>
      *
      * @param apkFile apk file
      * @param id      id

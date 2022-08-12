@@ -1,5 +1,7 @@
 package com.zfun.funmodule.util;
 
+import org.gradle.api.Project;
+
 /**
  * Created by zfun on 2021/12/14 12:10 PM
  */
@@ -12,5 +14,12 @@ public class Util {
             }
         }
         return false;
+    }
+
+    public static boolean isRootProject(Project project){
+        if(null == project){
+            return false;
+        }
+        return project.getRootProject().getPath().equals(project.getPath());
     }
 }

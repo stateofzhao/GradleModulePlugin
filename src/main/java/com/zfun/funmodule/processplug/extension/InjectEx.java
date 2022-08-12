@@ -8,8 +8,6 @@ import java.util.Map;
 //build.gradle - injectCode = ["modulea":"gradle_code.txt"]
 public class InjectEx extends BaseExtension {
     public Map<String,String> injectCode;
-    public String moduleName;
-
     public InjectEx(Project project) {
         super(project);
     }
@@ -22,8 +20,7 @@ public class InjectEx extends BaseExtension {
     @Override
     public String toString() {
         return "InjectEx{" +
-                "moduleName='" + moduleName + '\'' +
-                ", injectCode=" + injectCode +
+                "injectCode=" + injectCode +
                 '}';
     }
 }

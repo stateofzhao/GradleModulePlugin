@@ -6,10 +6,9 @@ import org.gradle.api.Project;
 /**
  * Created by zfun on 2022/3/22 10:06
  */
-public class DebugEx extends BaseExtension {
-    //Constants.BUILD_DEBUG；Constants.BUILD_RELEASE
-    public int buildType;
-    public DebugEx(Project project) {
+public class BuildTypeEx extends BaseExtension {
+    public boolean debug;
+    public BuildTypeEx(Project project) {
         super(project);
     }
 
@@ -20,8 +19,8 @@ public class DebugEx extends BaseExtension {
 
     @Override
     public String toString() {
-        return "DebugEx{" +
-                "buildType=" + buildType +
+        return "BuildTypeEx{" +
+                "debug=" + debug +
                 '}';
     }
 }
