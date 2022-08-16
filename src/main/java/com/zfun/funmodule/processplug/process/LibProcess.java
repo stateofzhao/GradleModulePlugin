@@ -4,6 +4,7 @@ import com.zfun.funmodule.Constants;
 import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
+import com.zfun.funmodule.util.ManifestEditor;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
 
@@ -75,6 +76,9 @@ public class LibProcess implements IProcess {
             final File desManifest = new File(desManifestParentDir.getAbsolutePath() , Constants.sManifestName);
             oriManifestFile = srcManifest;
             savedManifestFile = desManifest;
+            if(!srcManifest.exists()){
+                return;
+            }
             if (desManifest.exists()) {
                 desManifest.delete();
             }
@@ -83,8 +87,8 @@ public class LibProcess implements IProcess {
                 LogMe.D(project.getName() + "：manifestPath==" + oriManifestFile.toPath());
                 LogMe.D(project.getName() + "：desManifestPath==" + desManifest.toPath());
                 FileUtil.copy(srcManifest, desManifest);
-                LogMe.D(project.getName() + "：开始修改xml文件");
-                FileUtil.removeManifestLauncherActivity(oriManifestFile);
+                LogMe.D(project.getName() + "：开始修改xml文件 - ManifestEditor");
+                new ManifestEditor(savedManifestFile.getAbsolutePath(),oriManifestFile.getAbsolutePath()).transform(new ManifestEditor.RemoveActivityLauncher());
                 needRecoverManifestFile = true;
                 LogMe.D("修改后的Manifest：" +  FileUtil.getText(oriManifestFile));
             } catch (Exception e) {

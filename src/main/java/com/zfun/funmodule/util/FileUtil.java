@@ -80,10 +80,6 @@ public class FileUtil {
         Files.copy(srcFile.toPath(),destFile.toPath());
     }
 
-    public static void removeManifestLauncherActivity(File manifestFile) throws Exception{
-        FileUtil.replaceFileText(manifestFile, "<category android:name=\"android.intent.category.LAUNCHER\" />", "");
-    }
-
     public static File getTempFileDir(Project project){
         File tempFile = new File(project.getRootDir() + "/" + Constants.sBuildTempFile);
         if (!tempFile.exists()) {
