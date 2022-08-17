@@ -5,6 +5,7 @@ import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.ManifestEditor;
+import com.zfun.funmodule.util.StringUtils;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
 
@@ -29,6 +30,14 @@ public class LibProcess implements IProcess {
     @Override
     public void beforeEvaluate(final Project project) {
         try {
+            /*final Map<String,Object>  plugins = project.getConvention().getPlugins();
+            LogMe.D("Project："+project.getName()+" ======插件列表：");
+            Set<String> keySet = plugins.keySet();
+            for (String key:keySet){
+                LogMe.D("key == "+key +"  value == "+plugins.get(key));
+            }
+            LogMe.D("Project："+project.getName()+" ======插件列表End");*/
+
             //将build.gradle复制走，用完了再还回来~
             final String moduleName = project.getName();
             File desParentDir = new File(project.getRootDir() + "/" + Constants.sBuildTempFile+"/" + moduleName + "_build.gradle" );
@@ -46,22 +55,15 @@ public class LibProcess implements IProcess {
 
             final String oriText = FileUtil.getText(project.getBuildFile());
             //1，更改application插件->lib插件
-            String replaceText = oriText.replaceAll("com\\.android\\.application", "com.android.library");
+            String replaceText = oriText.replaceAll("'com\\.android\\.application'", "'com.android.library'"+Constants.sComments + "：com.android.application -> com.android.library");
+            replaceText = replaceText.replaceAll("\"com\\.android\\.application\"", "'com.android.library'"+Constants.sComments + "：com.android.application -> com.android.library");
             //2，移除applicationId
-            Matcher matcher = Pattern.compile(Constants.sDefaultApplicationIdRegexPre).matcher(replaceText);
-            boolean isFind = matcher.find();
-            if(isFind){
-                int applicationIdStartIndex = matcher.end();
-                final String preTemp = replaceText.substring(0,applicationIdStartIndex);
-                final String lastTemp = replaceText.substring(applicationIdStartIndex);
-                final String pre = preTemp.substring(0,preTemp.lastIndexOf("applicationId"));
-                replaceText = pre + lastTemp;
-            }
-            LogMe.D("Lib移除applicationId和application插件后：");
-            LogMe.D(replaceText);
-            LogMe.D("==========================");
+            replaceText = StringUtils.editGradleText(Constants.sDefaultApplicationIdRegexPre,"applicationId",replaceText,null);
             if(!oriText.equals(replaceText)){
                 needRecoverBuildFile = true;
+                LogMe.D("Lib移除application插件和applicationId后：");
+                LogMe.D(replaceText);
+                LogMe.D("==========================");
             }
             if(needRecoverBuildFile){
                 FileUtil.write(project.getBuildFile(), replaceText);
@@ -105,7 +107,6 @@ public class LibProcess implements IProcess {
 
     @Override
     public void projectsEvaluated(Project project) {
-
     }
 
     @Override

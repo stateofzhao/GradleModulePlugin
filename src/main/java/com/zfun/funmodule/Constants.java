@@ -1,6 +1,7 @@
 package com.zfun.funmodule;
 
 public class Constants {
+    public static final String sComments = "//【io.github.stateofzhao插件修改，编译后如果出现此修改，则需要手动还原回去】";
     public static final String sChannelKey = "channel";
     public static final String sBuildTempFile = ".idea";
     public static final String sManifestName = "AndroidManifest.xml";
