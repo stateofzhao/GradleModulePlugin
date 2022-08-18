@@ -37,12 +37,9 @@ public class AppLibFactory implements IProcessFactory<AppLibEx> {
         if (Constants.sRunTypeApp.equalsIgnoreCase(runType)) {
             return new LibProcess();
         }
-        /*else if (Constants.sRunTypeAll == runType) {
-            return new LibAppProcess();
-        }*/
-        else if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {
+        /*else if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {
             return new AppProcess();
-        }
+        }*/
 
         return new EmptyProcess();
     }

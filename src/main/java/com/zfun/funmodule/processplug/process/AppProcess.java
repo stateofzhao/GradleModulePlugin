@@ -34,7 +34,7 @@ public class AppProcess implements IProcess {
             }
             FileUtil.copy(srcBuildGradle, desBuildGradle);
 
-            final String oriText = FileUtil.getText(project.getBuildFile());
+            final String oriText = FileUtil.getText(srcBuildGradle);
             //1，更改library插件->application插件
             String replaceText = oriText.replaceAll("'com\\.android\\.library'", "'com.android.application'"+Constants.sComments + "：com.android.library -> com.android.application");
             replaceText = replaceText.replaceAll("\"com\\.android\\.library\"", "'com.android.application'"+Constants.sComments + "：com.android.library -> com.android.application");
@@ -45,7 +45,7 @@ public class AppProcess implements IProcess {
                 LogMe.D("==========================");
             }
             if(needRecoverBuildFile){
-                FileUtil.write(project.getBuildFile(), replaceText);
+                FileUtil.write(srcBuildGradle, replaceText);
             }
         } catch (IOException e) {
             throw new RuntimeException("AppProcess == 更改 "+project.getName() +" build.gradle文件：library插件->application插件 【失败】："+e.getMessage());
