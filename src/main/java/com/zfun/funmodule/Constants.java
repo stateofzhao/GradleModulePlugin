@@ -2,6 +2,8 @@ package com.zfun.funmodule;
 
 public class Constants {
     public static final String sComments = "//【io.github.stateofzhao插件修改，编译后如果出现此修改，则需要手动还原回去】";
+    public static final String sCommentsStart = "//【以下为 io.github.stateofzhao 插件修改，编译后如果出现此修改，则需要手动还原回去 ==start】";
+    public static final String sCommentsEnd = "//【io.github.stateofzhao插件修改 == end】";
     public static final String sChannelKey = "channel";
     public static final String sBuildTempFile = ".idea";
     public static final String sManifestName = "AndroidManifest.xml";
@@ -16,7 +18,6 @@ public class Constants {
     public static final String sInjectExtensionName = "funInject";
     public static final String sMultiChannelExName = "multiChannel";
     public static final String sDebugExtensionName = "funBuildType";
-    public static final String sDefaultAppName = "app";
     public static final String sRunTypeApp = "app";//只有壳app可以安装运行，所有lib的launchActivity都会被去掉launch属性
     public static final String sRunTypeModule = "module";//各个module各自可以独立运行，壳app不能运行
     //fixme 这个有问题暂时屏蔽

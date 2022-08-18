@@ -181,6 +181,7 @@ public class MultiChannelProcess implements IProcess {
                     }
                 } catch (Exception e) {
                     LogMe.D("startMultiCreateApk = Exception" + e);
+
                 }
                 LogMe.D("*************************多渠道打包Process-End*****************************");
             }

@@ -52,16 +52,6 @@ public class FileUtil {
         return answer.toString();
     }
 
-    public static boolean replaceFileText(File file, String regex, String replacement) throws IOException {
-        final String text = FileUtil.getText(file);
-        String replaceText = text.replaceAll(regex, replacement);
-        boolean changed = !replaceText.equals(text);
-        if(changed){
-            FileUtil.write(file, replaceText);
-        }
-        return changed;
-    }
-
     public static void closeWithWarning(Closeable c) {
         if (c != null) {
             try {

@@ -5,9 +5,9 @@ import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.processplug.extension.InjectEx;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
+import com.zfun.funmodule.util.StringUtils;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 import java.io.File;
 import java.util.Map;
@@ -18,16 +18,43 @@ public class InjectionProcess implements IProcess {
     private File desFile;
     private boolean injected;
 
-    private final Map<String,String> codeFile;
+    //group1
+    private final Map<String,String> codeFileMap;
+
+    //group2
+    private final String onlyCodeFile;
+    private final String[] excludeProjectName;
+
 
     public InjectionProcess(InjectEx injectEx){
-        codeFile = null == injectEx?null:injectEx.injectCode;
+        codeFileMap = null == injectEx?null:injectEx.injectCode;
+        onlyCodeFile = null == injectEx?null:injectEx.injectCodePath;
+        excludeProjectName = null == injectEx?null:injectEx.excludeProjectName;
     }
 
     @Override
     public void beforeEvaluate(Project project) {
-        String codeFilePath = null == codeFile?"":codeFile.get(project.getName());
-        if(null == codeFilePath || codeFilePath.trim().length() == 0){
+        String codeFilePath = null == codeFileMap ?"": codeFileMap.get(project.getName());
+        if(StringUtils.isEmpty(codeFilePath) && !useCodeFileMapParams()){//如果设置了 InjectEx#injectCode 属性，则忽略 InjectEx#injectCodePath 属性
+            codeFilePath = onlyCodeFile;
+        }
+        if(StringUtils.isEmpty(codeFilePath)){
+            return;
+        }
+
+        boolean canContinue = true;
+        if(!useCodeFileMapParams()){
+            if(null != excludeProjectName){
+                for (String excludeName:excludeProjectName){
+                    if (StringUtils.isEmpty(excludeName)) continue;
+                    if(excludeName.equals(project.getName())){
+                        canContinue = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if(!canContinue){
             return;
         }
 
@@ -45,11 +72,11 @@ public class InjectionProcess implements IProcess {
             final String text = FileUtil.getText(oriFile);
             final StringBuilder stringBuilder = new StringBuilder(text);
             final String injectText = FileUtil.getText(new File(codeFilePath));
-            stringBuilder.append("\n").append(injectText);
+            stringBuilder.append("\n").append(Constants.sCommentsStart).append("\n").append(injectText).append("\n").append(Constants.sCommentsEnd);
             FileUtil.write(oriFile,stringBuilder.toString());
             LogMe.D("注入后的gradle代码：\n"+FileUtil.getText(oriFile));
         } catch (Exception e) {
-            //
+            throw new RuntimeException("InjectionProcess == 向 "+project.getName() +" build.gradle文件注入代码失败："+e.getMessage());
         }
         injected = true;
     }
@@ -75,8 +102,12 @@ public class InjectionProcess implements IProcess {
             }
             FileUtil.copy(desFile, oriFile);
             LogMe.D("还原后的gradle代码："+FileUtil.getText(oriFile));
-        }catch (Exception e){
-            //
+        } catch (Exception e){
+            throw new RuntimeException("InjectionProcess == 还原 "+project.getName() +" build.gradle文件失败："+e.getMessage());
         }
+    }
+
+    private boolean useCodeFileMapParams(){
+        return null != codeFileMap && codeFileMap.size()>0;
     }
 }

@@ -11,8 +11,6 @@ import org.gradle.api.Project;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 //1，apply plugin 更改为 com.android.library；
 //2，删除build.gradle中的android{applicationId}；
@@ -94,10 +92,10 @@ public class LibProcess implements IProcess {
                 needRecoverManifestFile = true;
                 LogMe.D("修改后的Manifest：" +  FileUtil.getText(oriManifestFile));
             } catch (Exception e) {
-                //
+                throw new RuntimeException("LibProcess == 更改 "+project.getName() +" manifest文件：去掉Activity的launcher属性 【失败】："+e.getMessage());
             }
         } catch (IOException e) {
-            //
+            throw new RuntimeException("LibProcess == 更改 "+project.getName() +" build.gradle文件【失败】："+e.getMessage());
         }
     }
 
@@ -127,7 +125,7 @@ public class LibProcess implements IProcess {
                 LogMe.D("Manifest 还原完成");
             }
         } catch (IOException e) {
-            //
+            throw new RuntimeException("LibProcess == 还原 "+project.getName() +" build.gradle/Manifest文件【失败】："+e.getMessage());
         }
     }
 }

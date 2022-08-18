@@ -21,7 +21,7 @@ public class AppLibFactory implements IProcessFactory<AppLibEx> {
         }
         final String projectName = project.getName();
         final String runType = appLibEx.runType;
-        final String mainAppName = appLibEx.mainAppName;
+        final String mainAppName = appLibEx.packageProjectName;
         //针对mainApp进行处理
         if (mainAppName.equals(projectName)) {
             if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {

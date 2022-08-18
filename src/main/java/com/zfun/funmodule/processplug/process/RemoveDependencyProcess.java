@@ -4,13 +4,11 @@ import com.zfun.funmodule.Constants;
 import com.zfun.funmodule.processplug.IProcess;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
+import com.zfun.funmodule.util.StringUtils;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 1，更改application插件->lib插件；
@@ -19,9 +17,9 @@ import java.util.regex.Pattern;
  * */
 public class RemoveDependencyProcess implements IProcess {
     final String[] libName;
-    boolean needRecover = false;
-    private File oriFile;
-    private File savedFile;
+    boolean needRecoverBuildFile = false;
+    private File oriBuildFile;
+    private File savedBuildFile;
 
     public RemoveDependencyProcess(String[] libName) {
         this.libName = libName;
@@ -41,58 +39,37 @@ public class RemoveDependencyProcess implements IProcess {
             }
             final File srcBuildGradle = project.getBuildFile();
             final File desBuildGradle = new File(desParentDir.getAbsolutePath() , Constants.sBuildGradleName);
-            oriFile = srcBuildGradle;
-            savedFile = desBuildGradle;
+            oriBuildFile = srcBuildGradle;
+            savedBuildFile = desBuildGradle;
             if (desBuildGradle.exists()) {
                 desBuildGradle.delete();
             }
             FileUtil.copy(srcBuildGradle, desBuildGradle);
 
             final String oriText = FileUtil.getText(project.getBuildFile());
-            //1.更改application插件->lib插件
-            String replaceText = oriText.replaceAll("com\\.android\\.application", "com.android.library");
-            //2.移除applicationId
-            LogMe.D("applicationIdRegex 正则表达式："+Constants.sDefaultApplicationIdRegexPre);
-            Matcher matcher = Pattern.compile(Constants.sDefaultApplicationIdRegexPre).matcher(replaceText);
-            boolean isFind = matcher.find();
-            if(isFind){
-                int applicationIdStartIndex = matcher.end();
-                final String preTemp = replaceText.substring(0,applicationIdStartIndex);
-                final String lastTemp = replaceText.substring(applicationIdStartIndex);
-                final String pre = preTemp.substring(0,preTemp.lastIndexOf("applicationId"));
-                replaceText = pre + lastTemp;
-
-                LogMe.D("主模块移除applicationId和application插件后：");
-                LogMe.D(replaceText);
-                LogMe.D("==========================");
+            //1，更改application插件->lib插件
+            String replaceText = oriText.replaceAll("'com\\.android\\.application'", "'com.android.library'"+Constants.sComments + "：com.android.application -> com.android.library");
+            replaceText = replaceText.replaceAll("\"com\\.android\\.application\"", "'com.android.library'"+Constants.sComments + "：com.android.application -> com.android.library");
+            //2，移除applicationId
+            replaceText = StringUtils.editGradleText(Constants.sDefaultApplicationIdRegexPre,"applicationId",replaceText,null);
+            if(!oriText.equals(replaceText)){
+                needRecoverBuildFile = true;
             }
-            LogMe.D("主模块移除applicationId和application插件后：");
-            LogMe.D(replaceText);
-            LogMe.D("==========================");
+
             //3.移除对子模块的依赖
             for (String aLibName : libName) {
                 String regex = Constants.sDefaultDependenciesRegexPre+aLibName+Constants.sDefaultDependenciesRegexEnd;
-                replaceText = replaceText.replaceAll(regex,"");
-                /* LogMe.D("正则表达式："+regex);*/
+                replaceText = replaceText.replaceAll(regex,Constants.sComments + "：删除了此行代码");
             }
-            needRecover = !oriText.equals(replaceText);
-            if(needRecover){
+            needRecoverBuildFile = !oriText.equals(replaceText);
+            if(needRecoverBuildFile){
+                LogMe.D("【RemoveDependencyProcess】移除application插件、applicationId和对lib的依赖后：");
+                LogMe.D(replaceText);
+                LogMe.D("==========================");
                 FileUtil.write(project.getBuildFile(), replaceText);
             }
-            //3.删除对lib的依赖
-            for (String aLibName : libName) {
-                String regex = Constants.sDefaultDependenciesRegexPre+aLibName+Constants.sDefaultDependenciesRegexEnd;
-                replaceText = replaceText.replaceAll(regex,"");
-               /* LogMe.D("正则表达式："+regex);*/
-            }
-            needRecover = !oriText.equals(replaceText);
-            if(needRecover){
-                FileUtil.write(project.getBuildFile(), replaceText);
-            }
-           /* LogMe.D("修改完app-build.gradle后的内容：");
-            LogMe.D(replaceText);*/
         } catch (Exception e) {
-            LogMe.D("RemoveDependencyProcess-beforeEvaluate- Exception："+e.getLocalizedMessage());
+            throw new RuntimeException("RemoveDependencyProcess == 更改 "+project.getName() +" build.gradle文件【失败】："+e.getLocalizedMessage());
         }
     }
 
@@ -109,14 +86,14 @@ public class RemoveDependencyProcess implements IProcess {
     @Override
     public void buildFinished(Project project, BuildResult buildResult) {
         try {
-            if(needRecover){
-                if(oriFile.exists()){
-                    oriFile.delete();
+            if(needRecoverBuildFile){
+                if(oriBuildFile.exists()){
+                    oriBuildFile.delete();
                 }
-                FileUtil.copy(savedFile, oriFile);
+                FileUtil.copy(savedBuildFile, oriBuildFile);
             }
         } catch (Exception e) {
-            LogMe.D("RemoveDependencyProcess-buildFinished- Exception："+e.getLocalizedMessage());
+            throw new RuntimeException("RemoveDependencyProcess == 还原 "+project.getName() +" build.gradle文件【失败】:"+e.getLocalizedMessage());
         }
     }
 }

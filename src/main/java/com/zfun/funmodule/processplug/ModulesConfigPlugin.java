@@ -215,22 +215,19 @@ public class ModulesConfigPlugin extends BasePlugin {
             }
             if (baseExtension instanceof AppLibEx) {
                 final AppLibEx appLibEx = (AppLibEx) baseExtension;
-                if (appLibEx.mainAppName == null || appLibEx.mainAppName.trim().length() == 0) {
-                    appLibEx.mainAppName = Constants.sDefaultAppName;
-                }
                 String[] libNames = appLibEx.libName;
                 //给 appLibEx.libName 设置为所有子Project
                 if (null == libNames || libNames.length == 0) {
                     final Set<Project> allProject = project.getAllprojects();
-                    final int projectSize = allProject.size() - 2;//减去 根工程、主工程
+                    final int projectSize = allProject.size() - 2;//减去 根工程、主工程（打包的工程 = AppLibEx.mainAppName 配置的工程）
                     if (projectSize > 0) {
-                        libNames = new String[allProject.size()];
+                        libNames = new String[projectSize];
                         int index = 0;
                         for (Project aProject:allProject){
                             if(Util.isRootProject(aProject)){
                                 continue;
                             }
-                            if(aProject.getName().equals(appLibEx.mainAppName)){
+                            if(aProject.getName().equals(appLibEx.packageProjectName)){
                                 continue;
                             }
                             libNames[index] = aProject.getName();

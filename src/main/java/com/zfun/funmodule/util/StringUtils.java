@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class StringUtils {
 
     public static boolean isEmpty(String str){
-        return null == str || str.length() == 0;
+        return null == str || str.trim().length() == 0;
     }
 
     /**
