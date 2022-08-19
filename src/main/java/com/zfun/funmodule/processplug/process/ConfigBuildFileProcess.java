@@ -3,7 +3,6 @@ package com.zfun.funmodule.processplug.process;
 import com.zfun.funmodule.processplug.IProcess;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 //
 public class ConfigBuildFileProcess implements IProcess {

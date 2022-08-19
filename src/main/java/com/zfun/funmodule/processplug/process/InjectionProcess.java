@@ -2,6 +2,7 @@ package com.zfun.funmodule.processplug.process;
 
 import com.zfun.funmodule.Constants;
 import com.zfun.funmodule.processplug.IProcess;
+import com.zfun.funmodule.processplug.ProjectFileRestoreMgr;
 import com.zfun.funmodule.processplug.extension.InjectEx;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
@@ -14,69 +15,62 @@ import java.util.Map;
 
 //负责处理样板代码注入到Gradle中
 public class InjectionProcess implements IProcess {
-    private File oriFile;
-    private File desFile;
+    private String oriBuildFile;
     private boolean injected;
 
     //group1
-    private final Map<String,String> codeFileMap;
+    private final Map<String, String> codeFileMap;
 
     //group2
     private final String onlyCodeFile;
     private final String[] excludeProjectName;
 
 
-    public InjectionProcess(InjectEx injectEx){
-        codeFileMap = null == injectEx?null:injectEx.injectCode;
-        onlyCodeFile = null == injectEx?null:injectEx.injectCodePath;
-        excludeProjectName = null == injectEx?null:injectEx.excludeProjectName;
+    public InjectionProcess(InjectEx injectEx) {
+        codeFileMap = null == injectEx ? null : injectEx.injectCode;
+        onlyCodeFile = null == injectEx ? null : injectEx.injectCodePath;
+        excludeProjectName = null == injectEx ? null : injectEx.excludeProjectName;
     }
 
     @Override
     public void beforeEvaluate(Project project) {
-        String codeFilePath = null == codeFileMap ?"": codeFileMap.get(project.getName());
-        if(StringUtils.isEmpty(codeFilePath) && !useCodeFileMapParams()){//如果设置了 InjectEx#injectCode 属性，则忽略 InjectEx#injectCodePath 属性
+        String codeFilePath = null == codeFileMap ? "" : codeFileMap.get(project.getName());
+        if (StringUtils.isEmpty(codeFilePath) && !useCodeFileMapParams()) {//如果设置了 InjectEx#injectCode 属性，则忽略 InjectEx#injectCodePath 属性
             codeFilePath = onlyCodeFile;
         }
-        if(StringUtils.isEmpty(codeFilePath)){
+        if (StringUtils.isEmpty(codeFilePath)) {
             return;
         }
 
         boolean canContinue = true;
-        if(!useCodeFileMapParams()){
-            if(null != excludeProjectName){
-                for (String excludeName:excludeProjectName){
+        if (!useCodeFileMapParams()) {
+            if (null != excludeProjectName) {
+                for (String excludeName : excludeProjectName) {
                     if (StringUtils.isEmpty(excludeName)) continue;
-                    if(excludeName.equals(project.getName())){
+                    if (excludeName.equals(project.getName())) {
                         canContinue = false;
                         break;
                     }
                 }
             }
         }
-        if(!canContinue){
+        if (!canContinue) {
             return;
         }
 
-        File tempDir = FileUtil.getTempFileDir(project);
-        File copyDesFile = new File(tempDir,project.getName()+"_inject_gradle");
-        copyDesFile.mkdirs();
-        desFile = new File(copyDesFile, Constants.sBuildGradleName);
-        oriFile = project.getBuildFile();
-        if(desFile.exists()){
-            desFile.delete();
-        }
+        final File oriFile = project.getBuildFile();
+        oriBuildFile = oriFile.getAbsolutePath();
         try {
-            FileUtil.copy(oriFile,desFile);
-            LogMe.D(project.getName() +"：开始从声明的gradle_code文件=="+codeFilePath+ "==注入gradle代码");
+            ProjectFileRestoreMgr.saveFile(project, oriBuildFile);
+            LogMe.D(project.getName() + "：开始从声明的文件==" + codeFilePath + "==注入gradle代码");
             final String text = FileUtil.getText(oriFile);
             final StringBuilder stringBuilder = new StringBuilder(text);
             final String injectText = FileUtil.getText(new File(codeFilePath));
             stringBuilder.append("\n").append(Constants.sCommentsStart).append("\n").append(injectText).append("\n").append(Constants.sCommentsEnd);
-            FileUtil.write(oriFile,stringBuilder.toString());
-            LogMe.D("注入后的gradle代码：\n"+FileUtil.getText(oriFile));
+            FileUtil.write(oriFile, stringBuilder.toString());
+            LogMe.D("InjectionProcess == 注入后的gradle代码：\n" + FileUtil.getText(oriFile));
         } catch (Exception e) {
-            throw new RuntimeException("InjectionProcess == 向 "+project.getName() +" build.gradle文件注入代码失败："+e.getMessage());
+            throw new RuntimeException("InjectionProcess == 向 " + project.getName() + " build.gradle文件注入代码失败：" + e.getMessage());
         }
         injected = true;
     }
@@ -93,21 +87,18 @@ public class InjectionProcess implements IProcess {
 
     @Override
     public void buildFinished(Project project, BuildResult buildResult) {
-        if(!injected){
+        if (!injected) {
             return;
         }
         try {
-            if(oriFile.exists()){
-                oriFile.delete();
-            }
-            FileUtil.copy(desFile, oriFile);
-            LogMe.D("还原后的gradle代码："+FileUtil.getText(oriFile));
-        } catch (Exception e){
-            throw new RuntimeException("InjectionProcess == 还原 "+project.getName() +" build.gradle文件失败："+e.getMessage());
+            ProjectFileRestoreMgr.restoreFile(project, oriBuildFile);
+            LogMe.D("InjectionProcess == 还原后的gradle代码：" + FileUtil.getText(new File(oriBuildFile)));
+        } catch (Exception e) {
+            throw new RuntimeException("InjectionProcess == 还原 " + project.getName() + " build.gradle文件失败：" + e.getMessage());
         }
     }
 
-    private boolean useCodeFileMapParams(){
-        return null != codeFileMap && codeFileMap.size()>0;
+    private boolean useCodeFileMapParams() {
+        return null != codeFileMap && codeFileMap.size() > 0;
     }
 }

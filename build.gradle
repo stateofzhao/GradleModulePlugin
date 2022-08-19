@@ -104,7 +104,7 @@ pluginBundle {
 //--------------------------------------------------------------------------------------------以plugin文件的形式发布---end
 
 //--------------------------------------------------------------------------------------------以Maven形式发布---start
-//Maven形式发布时，必须通过 buildscript block 方式来引用插件，插件Id通过 `main/resources/META-INF/gradle-plugins` 方式来声明；
+//Maven形式发布的插件，必须通过 buildscript block 方式来引用插件，插件Id通过 `main/resources/META-INF/gradle-plugins` 方式来声明；
 //artifactId 默认为工程名称：GradleModulePlugin。最终引用方式为：
 //buildscript{dependencies{classpath '${group}:${artifactId}:${version}'}}
 task sourceJar(type: Jar) {
@@ -116,6 +116,7 @@ publishing {
         funmodule(MavenPublication) {
             from components.java
             artifact sourceJar
+            artifactId ARTIFACT_ID
             pom {
                 name = POM_NAME
                 description = POM_DESC

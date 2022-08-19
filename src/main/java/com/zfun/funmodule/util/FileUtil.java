@@ -38,7 +38,7 @@ public class FileUtil {
 
         try {
             int nbCharRead;
-            while((nbCharRead = reader.read(charBuffer)) != -1) {
+            while ((nbCharRead = reader.read(charBuffer)) != -1) {
                 answer.append(charBuffer, 0, nbCharRead);
             }
 
@@ -62,16 +62,16 @@ public class FileUtil {
         }
     }
 
-    public static String findManifestPath(Project project){
-        return project.getProjectDir().getPath()+ Constants.sManifestPath;
+    public static String findManifestPath(Project project) {
+        return project.getProjectDir().getPath() + Constants.sManifestPath;
     }
 
-    public static void copy(File srcFile, File destFile) throws IOException{
-        Files.copy(srcFile.toPath(),destFile.toPath());
+    public static void copy(File srcFile, File destFile) throws IOException {
+        Files.copy(srcFile.toPath(), destFile.toPath());
     }
 
-    public static File getTempFileDir(Project project){
-        File tempFile = new File(project.getRootDir() + "/" + Constants.sBuildTempFile);
+    public static File getTempFileDir(Project project) {
+        File tempFile = new File(project.getRootDir() + File.separator + Constants.sBuildTempFile + File.separator + "GradleModulePlugin");
         if (!tempFile.exists()) {
             tempFile.mkdirs();
         }
