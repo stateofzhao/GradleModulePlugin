@@ -16,10 +16,7 @@ import org.gradle.api.Project;
 import org.gradle.api.invocation.Gradle;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 //扩展方法，两步搞定：
@@ -126,29 +123,33 @@ public class ModulesConfigPlugin extends BasePlugin {
     private IProcess[] findProcess(Project project) {
         LogMe.D("findProcess："+project.getName());
         if (!processMap.containsKey(project)) {
-            final BaseExtension[] exs = findPluginEx(project);//获取根build.gradle中的配置参数
-            if (null == exs) {
-                processMap.put(project, new IProcess[0]);
-                return null;
-            }
-            boolean createProcess = false;
-            final IProcess[] processes = new IProcess[exs.length];
-            int i = 0;
-            for (BaseExtension aBaseEx : exs) {
-                final IProcessFactory factory = processFactoryProvider.createFactory(project, aBaseEx);
-                if (null == factory) {
-                    continue;
+            final IProcess[] processes = createProcess(project);
+            processMap.put(project,processes);
+        }else {//读取非根build.gradle文件中配置的参数 fixme 这种设计有问题，以后在优化下
+            final IProcess[] processes = createProcess(project);
+            final IProcess[] existedProcesses = processMap.get(project);
+            final List<IProcess> insertList = new ArrayList<>();
+            //将新的Process插入到已经存在的Process中
+            for (IProcess newProcess : processes) {
+                for (IProcess extPrecess : existedProcesses) {
+                    if(newProcess.getClass() != extPrecess.getClass()){
+                        insertList.add(newProcess);
+                    }
                 }
-                final IProcess aProcess = factory.createProcess(project, aBaseEx);
-                if(null != aProcess && !(aProcess instanceof EmptyProcess)){
-                    createProcess = true;
-                }
-                processes[i] = aProcess;
-                i++;
-                LogMe.D("创建Process："+project.getName() + " == " + aProcess.getClass().getSimpleName());
             }
-            if (createProcess) {
-                processMap.put(project, processes);//将根根build.gradle的参数生成Process设置给子Project
+            final int insertSize = insertList.size();
+            final int existedSize = existedProcesses.length;
+            if(insertSize>0){
+                final IProcess[] resultProcesses = new IProcess[existedSize+insertSize];
+                for (int i =0;i<resultProcesses.length;i++){
+                    if(i < existedSize){
+                        resultProcesses[i] = existedProcesses[i];
+                    }else {
+                        final int insertPos = i%insertSize;
+                        resultProcesses[i] = insertList.get(insertPos);
+                    }
+                }
+                processMap.put(project,resultProcesses);
             }
         }
         IProcess[] iProcesses = processMap.get(project);
@@ -156,6 +157,26 @@ public class ModulesConfigPlugin extends BasePlugin {
             return null;
         }
         return iProcesses;
+    }
+
+    private IProcess[] createProcess(Project project){
+        final BaseExtension[] exs = findPluginEx(project);//获取根build.gradle中的配置参数
+        if(null == exs){
+            return new IProcess[0];
+        }
+        final IProcess[] processes = new IProcess[exs.length];
+        int i = 0;
+        for (BaseExtension aBaseEx : exs) {
+            final IProcessFactory factory = processFactoryProvider.createFactory(project, aBaseEx);
+            if (null == factory) {
+                continue;
+            }
+            final IProcess aProcess = factory.createProcess(project, aBaseEx);
+            processes[i] = aProcess;
+            i++;
+            LogMe.D(project.getName() + " 创建Process："+" == " + aProcess.getClass().getSimpleName());
+        }
+        return Arrays.stream(processes).filter(Objects::nonNull).filter(iProcess -> !(iProcess instanceof EmptyProcess)).toArray(IProcess[]::new);
     }
 
     @Nullable
@@ -240,39 +261,4 @@ public class ModulesConfigPlugin extends BasePlugin {
             LogMe.D("根Project的参数：" + baseExtension.extensionName + " == " + baseExtension);
         }
     }
-
-    /*private IProcess findProcess(Project project) {
-        IProcess process = processMap.get(project);
-        if (null == process) {
-            AppLibEx appLibEx = findPluginEx(project);
-            process = appLibFactory.createProcess(project, appLibEx);
-            processMap.put(project, process);
-            LogMe.D("创建Process");
-        }
-        return process;
-    }*/
-
-    /*private BaseExtension findPluginEx(Project project) {
-        AppLibEx resultEx = project.getExtensions().findByType(getMyExtension());
-        final AppLibEx rootEx = project.getRootProject().getExtensions().findByType(getMyExtension());
-        if (null == rootEx) {
-            return null;
-        }
-        if (rootEx.mainAppName == null || rootEx.mainAppName.trim().length() == 0) {
-            rootEx.mainAppName = Constants.sDefaultAppName;
-        }
-        if (null == resultEx) {
-            resultEx = new AppLibEx();
-        }
-        resultEx.runType = rootEx.runType;
-        resultEx.mainAppName = rootEx.mainAppName;
-        resultEx.buildType = rootEx.buildType;
-        resultEx.libName = rootEx.libName;
-
-        if (null == resultEx.moduleName || resultEx.moduleName.trim().length() == 0) {
-            resultEx.moduleName = project.getName();
-        }
-        LogMe.D("Project的Extension：" + resultEx);
-        return resultEx;
-    }*/
 }

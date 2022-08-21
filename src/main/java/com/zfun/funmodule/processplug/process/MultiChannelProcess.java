@@ -60,6 +60,8 @@ public class MultiChannelProcess implements IProcess {
     @Override
     public void projectsEvaluated(Project project) {
         AppPlugin androidAppPlug = project.getPlugins().findPlugin(AppPlugin.class);
+        LogMe.D("MultiChannelProcess == projectsEvaluated: == project：" + project.getName());
+        LogMe.D("MultiChannelProcess == projectsEvaluated: " + androidAppPlug);
         if (null == androidAppPlug) {//只有app插件才起作用
             return;
         }
