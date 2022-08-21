@@ -15,7 +15,7 @@ buildscript {
             url 'https://s01.oss.sonatype.org/content/repositories/snapshots' 
         }
         dependencies {
-            classpath 'io.github.stateofzhao:GradleMoudlePlugin:1.1.7-SNAPSHOT'
+            classpath 'io.github.stateofzhao:GradleModulePlugin:1.1.7-SNAPSHOT'
         }
     }
 }
