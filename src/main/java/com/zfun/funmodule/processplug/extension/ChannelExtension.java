@@ -5,23 +5,17 @@ import java.util.Map;
 
 /**
  * 需要在application的build.gradle中配置。
- * {@link  MultiChannelEx}的【配置容器】扩展。<br/>
+ * {@link  MultiChannelEx}的【配置容器】扩展。<br>
  * 实现下面这中配置：
  * <pre>
- * <code>
- * productFlavors {
+ *  productFlavors {
  *         demo {
  *             dimension "mode"
  *         }
  *         Full {
  *             dimension "mode"
  *         }
- * }
- * </code>
- * </pre>
- * <br/>
- * <br/>
- * <pre>
+ *  }
  *  multiChannel{
  *     buildType = 1
  *     channelConfig{
@@ -32,9 +26,8 @@ import java.util.Map;
  *             extraInfo = ["key1":"value1","key2":"value2"] //除渠道外的额外信息
  *         }
  *      }
- *   }
+ *  }
  * </pre>
- * <p>
  * Created by zfun on 2021/12/14 10:56 AM
  */
 public class ChannelExtension {

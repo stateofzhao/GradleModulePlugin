@@ -8,7 +8,7 @@ import java.io.File;
 
 /**
  * 使用{@link com.zfun.funmodule.processplug.process.MultiChannelProcess}打完包后读取写入到的渠道信息。
- * <br/>
+ * <p>
  * Created by zfun on 2021/12/20 2:18 PM
  */
 public class ChannelReaderHelper {

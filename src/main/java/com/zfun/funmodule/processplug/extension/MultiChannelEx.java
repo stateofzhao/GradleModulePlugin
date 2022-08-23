@@ -9,20 +9,14 @@ import org.gradle.api.Project;
  * 需要在application的build.gradle中配置。
  * 实现下面这中配置：
  * <pre>
- * <code>
- * productFlavors {
+ *  productFlavors {
  *         demo {
  *             dimension "mode"
  *         }
  *         full {
  *             dimension "mode"
  *         }
- * }
- * </code>
- * </pre>
- * <br/>
- * <br/>
- * <pre>
+ *  }
  *  multiChannel{
  *     buildType = 1
  *     channelConfig{
@@ -35,7 +29,6 @@ import org.gradle.api.Project;
  *      }
  *   }
  * </pre>
- * <p>
  * Created by zfun on 2021/12/14 10:56 AM
  */
 public class MultiChannelEx extends BaseExtension {
@@ -62,6 +55,8 @@ public class MultiChannelEx extends BaseExtension {
      *     ...
      * }
      * </pre>
+     *
+     * @param action 被Gradle自动调用后传递进来的参数
      * */
     //此方法被gradle自动调用
     public void channelConfig(Action<NamedDomainObjectContainer<ChannelExtension>> action) {

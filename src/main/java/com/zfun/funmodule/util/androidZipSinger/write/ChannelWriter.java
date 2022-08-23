@@ -21,8 +21,8 @@ public final class ChannelWriter {
      *
      * @param apkFile apk file
      * @param channel channel
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link #putRaw(File, String, boolean)}
+     * @throws SignatureNotFoundException {@link #putRaw(File, String, boolean)}
      */
     public static void put(final File apkFile, final String channel) throws IOException, SignatureNotFoundException {
         put(apkFile, channel, false);
@@ -33,33 +33,33 @@ public final class ChannelWriter {
      * @param apkFile apk file
      * @param channel channel
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link #putRaw(File, String, boolean)}
+     * @throws SignatureNotFoundException {@link #putRaw(File, String, boolean)}
      */
     public static void put(final File apkFile, final String channel, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         put(apkFile, channel, null, lowMemory);
     }
     /**
-     * write channel & extra info with channel fixed id
+     * write channel and extra info with channel fixed id
      *
      * @param apkFile   apk file
      * @param channel   channel （nullable)
      * @param extraInfo extra info (don't use {@link ChannelReader#CHANNEL_KEY PayloadReader.CHANNEL_KEY} as your key)
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link #putRaw(File, String, boolean)}
+     * @throws SignatureNotFoundException {@link #putRaw(File, String, boolean)}
      */
     public static void put(final File apkFile, final String channel, final Map<String, String> extraInfo) throws IOException, SignatureNotFoundException {
         put(apkFile, channel, extraInfo, false);
     }
     /**
-     * write channel & extra info with channel fixed id
+     * write channel and extra info with channel fixed id
      *
      * @param apkFile   apk file
      * @param channel   channel （nullable)
      * @param extraInfo extra info (don't use {@link ChannelReader#CHANNEL_KEY PayloadReader.CHANNEL_KEY} as your key)
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link #putRaw(File, String, boolean)}
+     * @throws SignatureNotFoundException {@link #putRaw(File, String, boolean)}
      */
     public static void put(final File apkFile, final String channel, final Map<String, String> extraInfo, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         final Map<String, String> newData = new HashMap<String, String>();
@@ -79,26 +79,26 @@ public final class ChannelWriter {
         putRaw(apkFile, jsonObject.toString(), lowMemory);
     }
     /**
-     * write custom content with channel fixed id <br/>
+     * write custom content with channel fixed id <br>
      * NOTE: {@link ChannelReader#get(File)}  and {@link ChannelReader#getMap(File)}  may be affected
      *
      * @param apkFile apk file
      * @param string  custom content
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link #putRaw(File, String, boolean)}
+     * @throws SignatureNotFoundException {@link #putRaw(File, String, boolean)}
      */
     public static void putRaw(final File apkFile, final String string) throws IOException, SignatureNotFoundException {
         putRaw(apkFile, string, false);
     }
     /**
-     * write custom content with channel fixed id<br/>
+     * write custom content with channel fixed id<br>
      * NOTE: {@link ChannelReader#get(File)}  and {@link ChannelReader#getMap(File)}  may be affected
      *
      * @param apkFile apk file
      * @param string  custom content
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link PayloadWriter#put(File, int, String, boolean)}
+     * @throws SignatureNotFoundException {@link PayloadWriter#put(File, int, String, boolean)}
      */
     public static void putRaw(final File apkFile, final String string, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         PayloadWriter.put(apkFile, ApkUtil.APK_CHANNEL_BLOCK_ID, string, lowMemory);
@@ -107,8 +107,8 @@ public final class ChannelWriter {
      * remove channel id content
      *
      * @param apkFile apk file
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException {@link #remove(File, boolean)}
+     * @throws SignatureNotFoundException {@link #remove(File, boolean)}
      */
     public static void remove(final File apkFile) throws IOException, SignatureNotFoundException {
         remove(apkFile, false);
@@ -118,8 +118,8 @@ public final class ChannelWriter {
      *
      * @param apkFile apk file
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block
+     * @throws SignatureNotFoundException APK too small for APK Signing Block
      */
     public static void remove(final File apkFile, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         PayloadWriter.remove(apkFile, ApkUtil.APK_CHANNEL_BLOCK_ID, lowMemory);

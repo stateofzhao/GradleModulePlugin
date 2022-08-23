@@ -12,7 +12,7 @@ import org.gradle.api.Project;
 import java.io.File;
 
 /**
- * 1，更改application插件->lib插件；
+ * 1，更改application插件为lib插件；
  * 2，删除对lib工程的依赖；
  * 3，删除build.gradle中的android{applicationId}；
  * */

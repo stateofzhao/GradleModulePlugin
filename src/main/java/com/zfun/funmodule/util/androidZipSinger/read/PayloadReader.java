@@ -67,7 +67,7 @@ public final class PayloadReader {
     }
 
     /**
-     * get all custom (id, buffer) <br/>
+     * get all custom (id, buffer) <br>
      * Note: get final from byteBuffer, please use {@link PayloadReader#getBytes getBytes}
      *
      * @param apkFile apk file

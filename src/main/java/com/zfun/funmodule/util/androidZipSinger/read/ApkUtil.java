@@ -43,11 +43,12 @@ final public class ApkUtil {
 
     public static final String DEFAULT_CHARSET = "UTF-8";
 
-    private static final int ZIP_EOCD_REC_MIN_SIZE = 22;
+    private static final int ZIP_EOCD_REC_MIN_SIZE = 22;//zip文件中央目录包含的所有FileEntityHeader结束后的数据结构（End of Central Directory record）,最小值（comment数据为0）
     private static final int ZIP_EOCD_REC_SIG = 0x06054b50;
     private static final int UINT16_MAX_VALUE = 0xffff;
     private static final int ZIP_EOCD_COMMENT_LENGTH_FIELD_OFFSET = 20;
 
+    //获取zip文件中央区域中【注释区域（Comment）】总长度，这里没有采取直接读取中央区域中【Comment length (n)】值，而自己计算的
     public static long getCommentLength(final FileChannel fileChannel) throws IOException {
         // End of central directory record (EOCD)
         // Offset    Bytes     Description[23]
@@ -82,15 +83,15 @@ final public class ApkUtil {
         final long eocdWithEmptyCommentStartPosition = archiveSize - ZIP_EOCD_REC_MIN_SIZE;
         for (int expectedCommentLength = 0; expectedCommentLength <= maxCommentLength;
              expectedCommentLength++) {
-            final long eocdStartPos = eocdWithEmptyCommentStartPosition - expectedCommentLength;
+            final long eocdStartPos = eocdWithEmptyCommentStartPosition - expectedCommentLength;//
 
-            final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+            final ByteBuffer byteBuffer = ByteBuffer.allocate(4);//4字节（byte）== 32bit，正好是java的Integer占的bit数
             fileChannel.position(eocdStartPos);
             fileChannel.read(byteBuffer);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
-            if (byteBuffer.getInt(0) == ZIP_EOCD_REC_SIG) {
-                final ByteBuffer commentLengthByteBuffer = ByteBuffer.allocate(2);
+            if (byteBuffer.getInt(0) == ZIP_EOCD_REC_SIG) {//读取的正好是 中央目录开始标记
+                final ByteBuffer commentLengthByteBuffer = ByteBuffer.allocate(2);// commentLength最大为 65535 short够了
                 fileChannel.position(eocdStartPos + ZIP_EOCD_COMMENT_LENGTH_FIELD_OFFSET);
                 fileChannel.read(commentLengthByteBuffer);
                 commentLengthByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -104,10 +105,12 @@ final public class ApkUtil {
         throw new IOException("ZIP End of Central Directory (EOCD) record not found");
     }
 
+    //找到 中央区域中的【CentralDirectory的开始位置偏移】条目的值，此值就是 中央目录
     public static long findCentralDirStartOffset(final FileChannel fileChannel) throws IOException {
         return findCentralDirStartOffset(fileChannel, getCommentLength(fileChannel));
     }
 
+    //找到 中央区域中的【CentralDirectory的开始位置偏移】条目的值，此值就是中央区域相对整个zip文件的开始偏移值，这里是通过读取中央区域中的【CentralDirectory的开始位置偏移】条目值来确定的（与获取comment条目大小方式不同）
     public static long findCentralDirStartOffset(final FileChannel fileChannel, final long commentLength) throws IOException {
         // End of central directory record (EOCD)
         // Offset    Bytes     Description[23]
@@ -138,6 +141,15 @@ final public class ApkUtil {
         return findApkSigningBlock(fileChannel, centralDirOffset);
     }
 
+    /**
+     * @param fileChannel apk file
+     * @param centralDirOffset 中央区域相在整个zip文件的开始位置
+     *
+     * @throws IOException  If some other I/O error occurs
+     * @throws SignatureNotFoundException APK too small for APK Signing Block. ZIP Central Directory offset
+     *
+     * @return Pair.first == 整个签名块byte数据；Pair.second == 签名块在zip文件的开始位置
+     * */
     public static Pair<ByteBuffer, Long> findApkSigningBlock(
             final FileChannel fileChannel, final long centralDirOffset) throws IOException, SignatureNotFoundException {
 

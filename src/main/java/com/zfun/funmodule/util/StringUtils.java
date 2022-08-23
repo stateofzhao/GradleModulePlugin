@@ -26,6 +26,8 @@ public class StringUtils {
      * @param regexLineStartWord 在正则表达式匹配到字符串中，根据此值来再次匹配到行
      * @param oriText            要匹配的字符串
      * @param replaceText        将匹配到的字符串替换为此字符串，如果为空则会注释掉匹配到的行
+     *
+     * @return 处理后的字符串
      */
     public static String editGradleText(final String regex, final String regexLineStartWord, final String oriText, String replaceText) {
         final Matcher matcher = Pattern.compile(regex).matcher(oriText);

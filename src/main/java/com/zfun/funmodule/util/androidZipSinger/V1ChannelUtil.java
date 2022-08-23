@@ -21,10 +21,10 @@ import java.util.Map;
 import java.util.zip.ZipFile;
 
 /**
- * from[https://github.com/seven456/MultiChannelPackageTool/blob/master/library/src/com/android/zgj/multiChannelPackageTool/MCPTool.java]
- * <br/>
+ * <a href="https://github.com/seven456/MultiChannelPackageTool/blob/master/library/src/com/android/zgj/multiChannelPackageTool/MCPTool.java">MultiChannelPackageTool</a>
+ *  <p>
  *  向zip文件中 写入/读取 commit信息。
- * <P>
+ *  </p>
  * Created by zfun on 2021/12/14 5:44 PM
  */
 public class V1ChannelUtil {
@@ -49,7 +49,7 @@ public class V1ChannelUtil {
      * @param apkPath  apk包路径
      * @param mcptoolPassword mcptool解密密钥
      * @param defValue 读取不到时用该值作为默认值
-     * @return
+     * @return 打入apk包中的渠道信息
      */
     public static String getChannelId(String apkPath, String mcptoolPassword, String defValue) {
         final String content = readContent(new File(apkPath), mcptoolPassword);
@@ -67,6 +67,8 @@ public class V1ChannelUtil {
      * @param apkPath  apk包路径
      * @param mcptoolPassword mcptool解密密钥
      * @param defValue 读取不到时用该值作为默认值
+     *
+     * @return 打入apk包中的额外key-value信息
      * */
     public static String getExtraInfo(String key,String apkPath, String mcptoolPassword, String defValue){
         if(null == key||key.length()==0){
@@ -84,7 +86,7 @@ public class V1ChannelUtil {
      * @param apkPath  apk包路径
      * @param mcptoolPassword mcptool解密密钥
      * @param defValue 读取不到时用该值作为默认值
-     * @return
+     * @return 打入apk包中的所有信息
      */
     public static ChannelInfo getChannelInfo(String apkPath, String mcptoolPassword, String defValue) {
         final String content = readContent(new File(apkPath), mcptoolPassword);

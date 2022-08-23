@@ -79,20 +79,20 @@ def isReleaseVersion = !version.endsWith("SNAPSHOT")
 //}//生成二进制插件-----------------------------------------------end
 
 //批量配置插件的描述信息
-pluginBundle {
-    website = POM_URL
-    vcsUrl = VCS_URL
-    description = POM_DESC
-
-    plugins{
-        funmodule{//名称需要在上面的gradlePlugin{plugins{xxx{}}}代码块中声明
-            //id 会被 【java-gradle-plugin插件】 自动配置。
-            //website、vcsUrl等，如果不配置将使用 pluginBundle 中的配置。
-            //displayName = POM_NAME 如果不配置将使用 gradlePlugin{plugins{xxx{}}} 中的配置。
-            tags = ['Android Module','Lib App']
-        }
-    }
-}
+//pluginBundle {
+//    website = POM_URL
+//    vcsUrl = VCS_URL
+//    description = POM_DESC
+//
+//    plugins{
+//        funmodule{//名称需要在上面的gradlePlugin{plugins{xxx{}}}代码块中声明
+//            //id 会被 【java-gradle-plugin插件】 自动配置。
+//            //website、vcsUrl等，如果不配置将使用 pluginBundle 中的配置。
+//            //displayName = POM_NAME 如果不配置将使用 gradlePlugin{plugins{xxx{}}} 中的配置。
+//            tags = ['Android Module','Lib App']
+//        }
+//    }
+//}
 
 //发布插件到 Gradle官方插件库：
 //1，去 https://plugins.gradle.org/user/register 注册，获取官方插件库授权
@@ -107,15 +107,40 @@ pluginBundle {
 //Maven形式发布的插件，必须通过 buildscript block 方式来引用插件，插件Id通过 `main/resources/META-INF/gradle-plugins` 方式来声明；
 //artifactId 默认为工程名称：GradleModulePlugin。最终引用方式为：
 //buildscript{dependencies{classpath '${group}:${artifactId}:${version}'}}
-task sourceJar(type: Jar) {
+
+//release版发布后，需要去：https://s01.oss.sonatype.org/#stagingRepositories 中台来确认发布后，才能同步到mavenCentral()官方库中。
+
+//====publish group--1 ==start
+//java{
+//    withJavadocJar()
+//    withSourcesJar()
+//}
+//====publish group--1 ==end
+
+
+//====publish group--2 == start
+task sourceJar(type: Jar,dependsOn:classes) {
     from sourceSets.main.allJava
     archiveClassifier = "sources"
 }
+task javadocJar(type: Jar, dependsOn:javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+//=====public group--2  ==end
+
 publishing {
     publications{
-        funmodule(MavenPublication) {
-            from components.java
+        pluginMaven(MavenPublication) {
+            //====publish group--1 == start
+            //from components.java
+            //=====public group--1  ==end
+
+            //====publish group--2 ==start
             artifact sourceJar
+            artifact javadocJar
+            //====publish group--2 ==end
+
             artifactId ARTIFACT_ID
             pom {
                 name = POM_NAME
@@ -173,7 +198,7 @@ publishing {
         signing{
             required { isReleaseVersion }//是否需要签名
             //发布maven仓库时需要签名的所有文件
-            sign publishing.publications.funmodule
+            sign publishing.publications.pluginMaven
         }
     }
 }//--------------------------------------------------------------------------------------------以Maven形式发布---end

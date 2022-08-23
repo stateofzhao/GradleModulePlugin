@@ -19,6 +19,11 @@ public class ProjectFileRestoreMgr {
     private static final Map<Project, FileOpt> projectFileOptMap = new Hashtable<>();
 
     /**
+     * @param project 保存此{@link Project}里面的一个文件
+     * @param filePath 要保存的文件绝对路径
+     *
+     * @throws IOException IO error
+     *
      * @return 返回备份文件的全名
      * */
     public static String saveFile(Project project, String filePath) throws IOException {

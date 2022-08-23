@@ -28,8 +28,8 @@ public final class PayloadWriter {
      * @param apkFile apk file
      * @param id id
      * @param string string content
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void put(final File apkFile, final int id, final String string) throws IOException, SignatureNotFoundException {
         put(apkFile, id, string, false);
@@ -40,8 +40,8 @@ public final class PayloadWriter {
      * @param id id
      * @param string string
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void put(final File apkFile, final int id, final String string, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         final byte[] bytes = string.getBytes(ApkUtil.DEFAULT_CHARSET);
@@ -57,8 +57,8 @@ public final class PayloadWriter {
      * @param apkFile apk file
      * @param id      id
      * @param buffer  buffer
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void put(final File apkFile, final int id, final ByteBuffer buffer) throws IOException, SignatureNotFoundException {
         put(apkFile, id, buffer, false);
@@ -70,8 +70,8 @@ public final class PayloadWriter {
      * @param id id
      * @param buffer buffer
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void put(final File apkFile, final int id, final ByteBuffer buffer, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         final Map<Integer, ByteBuffer> idValues = new HashMap<Integer, ByteBuffer>();
@@ -83,8 +83,8 @@ public final class PayloadWriter {
      *
      * @param apkFile  apk file
      * @param idValues id value. NOTE: use unknown IDs. DO NOT use ID that have already been used.  See <a href='https://source.android.com/security/apksigning/v2.html'>APK Signature Scheme v2</a>
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void putAll(final File apkFile, final Map<Integer, ByteBuffer> idValues) throws IOException, SignatureNotFoundException {
         putAll(apkFile, idValues, false);
@@ -95,8 +95,8 @@ public final class PayloadWriter {
      * @param apkFile  apk file
      * @param idValues id value. NOTE: use unknown IDs. DO NOT use ID that have already been used.  See <a href='https://source.android.com/security/apksigning/v2.html'>APK Signature Scheme v2</a>
      * @param lowMemory if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void putAll(final File apkFile, final Map<Integer, ByteBuffer> idValues, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         handleApkSigningBlock(apkFile, new ApkSigningBlockHandler() {
@@ -120,8 +120,8 @@ public final class PayloadWriter {
      *
      * @param apkFile apk file
      * @param id id
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void remove(final File apkFile, final int id) throws IOException, SignatureNotFoundException {
         remove(apkFile, id, false);
@@ -132,8 +132,8 @@ public final class PayloadWriter {
      * @param apkFile apk file
      * @param id id
      * @param lowMemory  if need low memory operation, maybe a little slower
-     * @throws IOException
-     * @throws SignatureNotFoundException
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
      */
     public static void remove(final File apkFile, final int id, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         PayloadWriter.handleApkSigningBlock(apkFile, new PayloadWriter.ApkSigningBlockHandler() {
@@ -156,6 +156,10 @@ public final class PayloadWriter {
         ApkSigningBlock handle(Map<Integer, ByteBuffer> originIdValues);
     }
 
+    /**
+     * @throws IOException No APK Signature Scheme v2 block in APK Signing Block or IO error
+     * @throws SignatureNotFoundException 无法获取zip文件中签名块数据
+     * */
     static void handleApkSigningBlock(final File apkFile, final ApkSigningBlockHandler handler, final boolean lowMemory) throws IOException, SignatureNotFoundException {
         RandomAccessFile fIn = null;
         FileChannel fileChannel = null;
