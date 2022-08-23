@@ -61,11 +61,12 @@ public class InjectionProcess implements IProcess {
         final File oriFile = project.getBuildFile();
         oriBuildFile = oriFile.getAbsolutePath();
         try {
+            final File insertCodeFile = new File(project.getRootDir(),codeFilePath);
             ProjectFileRestoreMgr.saveFile(project, oriBuildFile);
-            LogMe.D(project.getName() + "：开始从声明的文件==" + codeFilePath + "==注入gradle代码");
+            LogMe.D(project.getName() + "：开始从声明的文件==" + insertCodeFile.getAbsoluteFile() + "==注入gradle代码");
             final String text = FileUtil.getText(oriFile);
             final StringBuilder stringBuilder = new StringBuilder(text);
-            final String injectText = FileUtil.getText(new File(codeFilePath));
+            final String injectText = FileUtil.getText(insertCodeFile);
             stringBuilder.append("\n").append(Constants.sCommentsStart).append("\n").append(injectText).append("\n").append(Constants.sCommentsEnd);
             FileUtil.write(oriFile, stringBuilder.toString());
             LogMe.D("InjectionProcess == 注入后的gradle代码：\n" + FileUtil.getText(oriFile));

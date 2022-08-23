@@ -7,7 +7,7 @@ import org.gradle.api.Project;
 import java.util.Arrays;
 
 public class AppLibEx extends BaseExtension {
-    public String packageProjectName;//壳app的module名称
+    public String appProjectName;//壳app的module名称
     public String[] libName;
     public String runType;//运行模式
 
@@ -17,13 +17,13 @@ public class AppLibEx extends BaseExtension {
 
     @Override
     public boolean isEmpty() {
-        return StringUtils.isEmpty(packageProjectName) || StringUtils.isEmpty(runType);
+        return StringUtils.isEmpty(appProjectName) || StringUtils.isEmpty(runType);
     }
 
     @Override
     public String toString() {
         return "AppLibEx{" +
-                "packageProjectName='" + packageProjectName + '\'' +
+                "appProjectName='" + appProjectName + '\'' +
                 ", libName=" + Arrays.toString(libName) +
                 ", runType=" + runType +
                 '}';

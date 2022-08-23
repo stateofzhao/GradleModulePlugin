@@ -248,7 +248,7 @@ public class ModulesConfigPlugin extends BasePlugin {
                             if(Util.isRootProject(aProject)){
                                 continue;
                             }
-                            if(aProject.getName().equals(appLibEx.packageProjectName)){
+                            if(aProject.getName().equals(appLibEx.appProjectName)){
                                 continue;
                             }
                             libNames[index] = aProject.getName();

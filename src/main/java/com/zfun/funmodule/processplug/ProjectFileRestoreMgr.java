@@ -1,6 +1,7 @@
 package com.zfun.funmodule.processplug;
 
 import com.zfun.funmodule.util.FileUtil;
+import com.zfun.funmodule.util.LogMe;
 import com.zfun.funmodule.util.StringUtils;
 import org.gradle.api.Project;
 
@@ -82,6 +83,7 @@ public class ProjectFileRestoreMgr {
             final File desFile = new File(desParentDir.getAbsolutePath(), fileName);
             if (desFile.exists()) {
                 desFile.delete();
+                LogMe.D("saveFile - 删除旧文件 = " + desFile.getAbsoluteFile());
             }
             FileUtil.copy(oriFile, desFile);
             //
@@ -104,6 +106,7 @@ public class ProjectFileRestoreMgr {
             final File oriFile = new File(savedFileData.oriFilePath);
             if (oriFile.exists()) {
                 oriFile.delete();
+                LogMe.D("还原文件 - 删除旧文件 = " + oriFile.getAbsoluteFile());
             }
             FileUtil.copy(new File(savedFileData.desFilePath), oriFile);
             savedFiles.remove(savedFileData);

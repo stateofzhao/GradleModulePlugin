@@ -32,7 +32,7 @@ funBuildType{
 在根工程的`build.gradle`文件中配置：
 ```java
 funAppLib {
-    packageProjectName = 'app'	//主（壳）工程的module名称
+    appProjectName = 'app'	//主（壳）工程的module名称
     runType = 'app'	//有两种类型：'app'、'module'
     libName = ["modulea","moduleb"] //作为lib的module名称；可选，如果不声明，则取项目所有子工程
 }
