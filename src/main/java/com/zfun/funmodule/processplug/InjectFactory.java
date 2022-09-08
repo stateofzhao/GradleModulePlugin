@@ -5,12 +5,18 @@ import com.zfun.funmodule.processplug.process.EmptyProcess;
 import com.zfun.funmodule.processplug.process.InjectionProcess;
 import org.gradle.api.Project;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class InjectFactory implements IProcessFactory<InjectEx> {
     @Override
-    public IProcess createProcess(Project project, InjectEx extension) {
+    public List<IProcess> createProcess(Project project, InjectEx extension) {
         if (null == extension || extension.isEmpty()) {
-            return new EmptyProcess();
+            return Collections.emptyList();
         }
-        return new InjectionProcess(extension);
+        final List<IProcess> processList = new ArrayList<>();
+        processList.add(new InjectionProcess(extension));
+        return processList;
     }
 }

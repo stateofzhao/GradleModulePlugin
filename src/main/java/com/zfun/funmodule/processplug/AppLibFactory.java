@@ -6,42 +6,41 @@ import com.zfun.funmodule.processplug.extension.AppLibEx;
 import com.zfun.funmodule.processplug.process.*;
 import org.gradle.api.Project;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class AppLibFactory implements IProcessFactory<AppLibEx> {
 
-    public IProcess createProcess(Project project, AppLibEx appLibEx) {
-        if (project.getRootProject() == project) {
-            return new ConfigBuildFileProcess();
-        }
+    public List<IProcess> createProcess(Project project, AppLibEx appLibEx) {
         if(null == appLibEx){
-            return new EmptyProcess();
+            return Collections.emptyList();
         }
-
         if (null == appLibEx.libName) {
-            return new EmptyProcess();
+            return Collections.emptyList();
         }
+        final List<IProcess> processList = new ArrayList<>();
         final String projectName = project.getName();
         final String runType = appLibEx.runType;
         final String mainAppName = appLibEx.appProjectName;
         //针对mainApp进行处理
         if (mainAppName.equals(projectName)) {
             if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {
-                return new RemoveDependencyProcess(appLibEx.libName);
+                processList.add(new RemoveDependencyProcess(appLibEx.libName));
+//                processList.add(new LibProcess());
             }
-            return new EmptyProcess();
+            return processList;
         }
 
         if (!isInLibName(project,appLibEx)) {
-            return new EmptyProcess();
+            return Collections.emptyList();
         }
 
         if (Constants.sRunTypeApp.equalsIgnoreCase(runType)) {
-            return new LibProcess();
+            processList.add(new LibProcess());
+            return processList;
         }
-        /*else if (Constants.sRunTypeModule.equalsIgnoreCase(runType)) {
-            return new AppProcess();
-        }*/
-
-        return new EmptyProcess();
+        return Collections.emptyList();
     }
 
     private boolean isInLibName(Project project,BaseExtension extension) {

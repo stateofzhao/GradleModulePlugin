@@ -70,8 +70,24 @@ public class FileUtil {
         Files.copy(srcFile.toPath(), destFile.toPath());
     }
 
-    public static File getTempFileDir(Project project) {
-        File tempFile = new File(project.getRootDir() + File.separator + Constants.sBuildTempFile + File.separator + "GradleModulePlugin");
+    //将真正用到的文件拷贝到build目录，以便知道到底使用怎样的文件来编译的
+    public static void copyRealUsedFile2Temp(File realUsedFile, Project project) throws IOException {
+        final String fileName = realUsedFile.getName();
+        final File desFile = new File(getTempFileDir(project, "compile"), fileName);
+        if (desFile.exists()) {
+            desFile.delete();
+        }
+        copy(realUsedFile, desFile);
+    }
+
+    public static File getTempFileDir(Project project, String dirName) {
+        final String tempFilePath;
+        if (StringUtils.isEmpty(dirName)) {
+            tempFilePath = project.getRootProject().getBuildDir() + File.separator + "GradleModulePlugin" + File.separator + project.getName();
+        } else {
+            tempFilePath = project.getRootProject().getBuildDir() + File.separator + "GradleModulePlugin" + File.separator + project.getName() + File.separator+dirName;
+        }
+        File tempFile = new File(tempFilePath);
         if (!tempFile.exists()) {
             tempFile.mkdirs();
         }

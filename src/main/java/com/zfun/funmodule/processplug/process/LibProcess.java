@@ -45,38 +45,52 @@ public class LibProcess implements IProcess {
             replaceText = StringUtils.editGradleText(Constants.sDefaultApplicationIdRegexPre, "applicationId", replaceText, null);
             if (!oriText.equals(replaceText)) {
                 needRecoverBuildFile = true;
-                LogMe.D("Lib移除application插件和applicationId后：");
-                LogMe.D(replaceText);
-                LogMe.D("==========================");
+                LogMe.D_Divider(project.getName(),"【LibProcess】移除 application 插件和 applicationId");
             }
             if (needRecoverBuildFile) {
                 ProjectFileRestoreMgr.saveFile(project, oriBuildFile); //将build.gradle复制走，用完了再还回来~
-                FileUtil.write(buildGradleFile, replaceText);
+                FileUtil.write(buildGradleFile, replaceText);//更新build.gradle
+                FileUtil.copyRealUsedFile2Temp(buildGradleFile,project);//将更新后的build.gradle复制到指定目录，方便查看
             }
 
             //***更改Manifest***
             final File srcManifest = new File(FileUtil.findManifestPath(project));
-            oriManifestFile = srcManifest.getAbsolutePath();
             if (!srcManifest.exists()) {
                 return;
             }
+            final String oriManifestText = FileUtil.getText(srcManifest);
+            if(StringUtils.isEmpty(oriManifestText)){
+                return;
+            }
+            oriManifestFile = srcManifest.getAbsolutePath();
             //3，修改manifest
             try {
                 final String savedFile = ProjectFileRestoreMgr.saveFile(project, oriManifestFile);//将manifest复制走，用完了再还回来~
-                LogMe.D(project.getName() + "：开始修改xml文件 - ManifestEditor");
                 new ManifestEditor(savedFile, srcManifest.getAbsolutePath()).transform(new ManifestEditor.RemoveActivityLauncher());
-                needRecoverManifestFile = true;
-                LogMe.D("修改后的Manifest：" + FileUtil.getText(srcManifest));
+                final String editManifestText = FileUtil.getText(srcManifest);
+                if(!oriManifestText.equals(editManifestText)){
+                    needRecoverManifestFile = true;
+                    FileUtil.copyRealUsedFile2Temp(srcManifest,project);
+                    LogMe.D_Divider(project.getName(),"【LibProcess】移除manifest-launcher");
+                }
             } catch (Exception e) {
-                throw new RuntimeException("LibProcess == 更改 " + project.getName() + " manifest文件：去掉Activity的launcher属性 【失败】：" + e.getMessage());
+                throw new RuntimeException("【LibProcess】== 更改 " + project.getName() + " manifest文件：去掉Activity的launcher属性 【失败】：" + e.getMessage());
             }
         } catch (IOException e) {
-            throw new RuntimeException("LibProcess == 更改 " + project.getName() + " build.gradle文件【失败】：" + e.getMessage());
+            throw new RuntimeException("【LibProcess】== 更改 " + project.getName() + " build.gradle文件【失败】：" + e.getMessage());
         }
     }
 
     @Override
     public void afterEvaluate(final Project project) {
+        try {
+            if (needRecoverBuildFile) {
+                ProjectFileRestoreMgr.restoreFile(project, oriBuildFile);
+                LogMe.D_Divider(project.getName(),"【LibProcess】build.gradle 还原完成");
+            }
+        }catch (Exception e){
+            throw new RuntimeException("【LibProcess】== 还原 " + project.getName() + " build.gradle文件【失败】：" + e.getMessage());
+        }
     }
 
     @Override
@@ -87,16 +101,12 @@ public class LibProcess implements IProcess {
     public void buildFinished(Project project, BuildResult buildResult) {
         //manifest的还原一定要在这里，因为build.gradle解析完毕后 android 插件会根据build.gradle中指定的Manifest文件来进行编译
         try {
-            if (needRecoverBuildFile) {
-                ProjectFileRestoreMgr.restoreFile(project, oriBuildFile);
-                LogMe.D("build.gradle 还原完成");
-            }
             if (needRecoverManifestFile) {
                 ProjectFileRestoreMgr.restoreFile(project, oriManifestFile);
-                LogMe.D("Manifest 还原完成");
+                LogMe.D_Divider(project.getName(),"【LibProcess】Manifest 还原完成");
             }
         } catch (IOException e) {
-            throw new RuntimeException("LibProcess == 还原 " + project.getName() + " build.gradle/Manifest文件【失败】：" + e.getMessage());
+            throw new RuntimeException("【LibProcess】== 还原 " + project.getName() + " Manifest文件【失败】：" + e.getMessage());
         }
     }
 }

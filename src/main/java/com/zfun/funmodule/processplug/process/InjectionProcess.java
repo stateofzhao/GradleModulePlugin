@@ -63,13 +63,14 @@ public class InjectionProcess implements IProcess {
         try {
             final File insertCodeFile = new File(project.getRootDir(),codeFilePath);
             ProjectFileRestoreMgr.saveFile(project, oriBuildFile);
-            LogMe.D(project.getName() + "：开始从声明的文件==" + insertCodeFile.getAbsoluteFile() + "==注入gradle代码");
+            LogMe.D_Divider(project.getName(),"：开始从声明的文件==" + insertCodeFile.getAbsoluteFile() + "==注入gradle代码");
             final String text = FileUtil.getText(oriFile);
             final StringBuilder stringBuilder = new StringBuilder(text);
             final String injectText = FileUtil.getText(insertCodeFile);
             stringBuilder.append("\n").append(Constants.sCommentsStart).append("\n").append(injectText).append("\n").append(Constants.sCommentsEnd);
             FileUtil.write(oriFile, stringBuilder.toString());
-            LogMe.D("InjectionProcess == 注入后的gradle代码：\n" + FileUtil.getText(oriFile));
+            //
+            FileUtil.copyRealUsedFile2Temp(oriFile,project);
         } catch (Exception e) {
             throw new RuntimeException("InjectionProcess == 向 " + project.getName() + " build.gradle文件注入代码失败：" + e.getMessage());
         }
@@ -78,7 +79,14 @@ public class InjectionProcess implements IProcess {
 
     @Override
     public void afterEvaluate(Project project) {
-
+        if (!injected) {
+            return;
+        }
+        try {
+            ProjectFileRestoreMgr.restoreFile(project, oriBuildFile);
+        } catch (Exception e) {
+            throw new RuntimeException("InjectionProcess == 还原 " + project.getName() + " build.gradle文件失败：" + e.getMessage());
+        }
     }
 
     @Override
@@ -88,15 +96,7 @@ public class InjectionProcess implements IProcess {
 
     @Override
     public void buildFinished(Project project, BuildResult buildResult) {
-        if (!injected) {
-            return;
-        }
-        try {
-            ProjectFileRestoreMgr.restoreFile(project, oriBuildFile);
-            LogMe.D("InjectionProcess == 还原后的gradle代码：" + FileUtil.getText(new File(oriBuildFile)));
-        } catch (Exception e) {
-            throw new RuntimeException("InjectionProcess == 还原 " + project.getName() + " build.gradle文件失败：" + e.getMessage());
-        }
+
     }
 
     private boolean useCodeFileMapParams() {
