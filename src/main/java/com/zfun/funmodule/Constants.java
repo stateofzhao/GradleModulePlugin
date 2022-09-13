@@ -20,6 +20,9 @@ public class Constants {
     public static final String sDebugExtensionName = "funBuildType";
     public static final String sRunTypeApp = "app";//只有壳app可以安装运行，所有lib的launchActivity都会被去掉launch属性
     public static final String sRunTypeModule = "module";//各个module各自可以独立运行，壳app不能运行
+    public static final String sRunTypeApp_Deprecated = "1";
+    public static final String sRunTypeModule_Deprecated = "2";
+
     //fixme 这个有问题暂时屏蔽
     //public static final String sRunTypeAll = "all";//运行壳app时，会将所有可以独立运行的module显示出来（相当于将module的launchActivity合并到壳app的manifest中）
 }
