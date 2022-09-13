@@ -13,7 +13,7 @@ import java.util.*;
  * 对原文件进行备份与还原，每个Project的文件都只会备份一次（{@link #saveFile(Project, String)}方法多次调用只有首次调用起作用），
  * 还原后方可再次备份（{@link #restoreFile(Project, String)}调用会，再次调用 {@link #saveFile(Project, String)}可起作用）。
  * <p>
- * 备份文件存储于 项目根目录的 【build/GradleModulePlugin/projectName/backup/fileName】所以，目前针对同名文件（即使路径不同）只能备份一次，先这样，后续再优化！！
+ * 备份文件存储于 项目根目录的 【.idea/GradleModulePlugin/projectName/backup/fileName】所以，目前针对同名文件（即使路径不同）只能备份一次，先这样，后续再优化！！
  */
 public class ProjectFileRestoreMgr {
     private static final Map<Project, FileOpt> projectFileOptMap = new Hashtable<>();
@@ -73,7 +73,7 @@ public class ProjectFileRestoreMgr {
         /**
          * @return 返回备份文件的全名
          * */
-        //fixme 备份文件存储于 项目根目录的 【build/GradleModulePlugin/projectName/backup/fileName】所以，目前针对同名文件（即使路径不同）只能备份一次，先这样，后续再优化！！
+        //fixme 备份文件存储于 项目根目录的 【.idea/GradleModulePlugin/projectName/backup/fileName】所以，目前针对同名文件（即使路径不同）只能备份一次，先这样，后续再优化！！
         public synchronized String saveFile(String filePath) throws IOException {
             final SavedFileData containsSaveFileDate = getContainsSavedFileData(filePath);
             if (containsSaveFileDate != null) {//已经保存过了不再保存
