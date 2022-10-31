@@ -4,6 +4,8 @@
 //}
 //方式引用
 
+//官方教程：https://plugins.gradle.org/docs/publish-plugin
+
 //发布命令为：publishPlugins
 
 //fuck gradle "二级gradle"的 buildscript{}块不会执行！！！参见：https://stackoverflow.com/questions/33418058/my-gradle-buildscript-dont-work
