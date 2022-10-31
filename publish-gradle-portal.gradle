@@ -1,0 +1,64 @@
+//发布到Gradle官方插件库，可以通过
+//plugins{
+//    id 'xxx'
+//}
+//方式引用
+
+//发布命令为：publishPlugins
+
+//fuck gradle "二级gradle"的 buildscript{}块不会执行！！！参见：https://stackoverflow.com/questions/33418058/my-gradle-buildscript-dont-work
+//由于是"二级gradle"所以无法直接使用 plugins{id 'com.gradle.plugin-publish' version '1.0.0'}，采用下面这种方式来声明插件：
+/*buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.gradle.publish:plugin-publish-plugin:1.0.0'
+    }
+}*/
+
+apply plugin: 'com.gradle.plugin-publish' //此插件会自动给项目添加 META-INF.gradle-plugins 目录和文件
+
+//The project version will be used as your plugin version when publishing
+version = VERSION_NAME
+group = GROUP
+
+//生成二进制插件----------------------------------------------start
+//通过这个来生成 xxx.gradle.plugin 文件的，xxx通过下面的id属性配置；
+//调用方通过：apply plugin: 'xxx' 来引用这个 xxx.gradle.plugin文件，如果发布到Gradle官方插件库的话，可以直接通过plugins{id 'xxx'}来快速引用；
+gradlePlugin {
+    // Define the plugin
+    plugins {
+        //定义插件发布的方法，这个方法名称会在下面的 pluginTags 中用到
+        zfunModuleMgrPlugin {
+            id = GRADLE_PORTA_PLUGIN_ID
+            implementationClass = GRADLE_PORTA_IMPLEMENTATION_CLASS
+            displayName = POM_NAME
+            description = POM_DESC
+        }
+    }
+}//生成二进制插件-----------------------------------------------end
+
+//批量配置插件的描述信息
+pluginBundle {
+    website = POM_URL
+    vcsUrl = VCS_URL
+    description = POM_DESC
+
+    tags = [GRADLE_PORTAL_TAG_ALL]//所有插件公用的tag
+
+    pluginTags = [
+            //插件名称：tag
+            zfunModuleMgrPlugin:GRADLE_PORTAL_TAG_PLUGIN
+    ]
+}
+
+//发布插件到 Gradle官方插件库：
+//1，去 https://plugins.gradle.org/user/register 注册，获取官方插件库授权
+//2，`gradle.properties`文件中配置
+// gradle.publish.key=xxx
+// gradle.publish.secret=xxx
+//3，使用如下命令，发布到Gradle官方插件库
+//`./gradlew publishPlugins`
