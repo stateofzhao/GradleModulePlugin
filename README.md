@@ -8,6 +8,7 @@
 ## 引入到项目
 在根工程的`build.gradle`中添加：
 
+### 1.2.3-SNAPSHOT 及之前版本
 ```java
 buildscript {
     repositories {
@@ -15,16 +16,36 @@ buildscript {
             url 'https://s01.oss.sonatype.org/content/repositories/snapshots' 
         }
         dependencies {
-            classpath 'io.github.stateofzhao:GradleModulePlugin:1.1.7-SNAPSHOT'
+            classpath 'io.github.stateofzhao:GradleModulePlugin:1.2.3-SNAPSHOT'
         }
     }
 }
-apply plugin: 'com.zfei.funmodule'//必须声明到根工程的build.gradle中
+apply plugin: 'io.github.stateofzhao'//必须声明到根工程的build.gradle中
 
 funBuildType{
      debug = true //true可以看到本插件的打印日志，false不可看到
 }
 ```
+### 1.2.4-SNAPSHOT 及之后版本
+```java
+buildscript {
+    repositories {
+        maven { 
+            url 'https://s01.oss.sonatype.org/content/repositories/snapshots' 
+        }
+        dependencies {
+            classpath 'io.github.stateofzhao:GradleModulePlugin:1.2.4-SNAPSHOT'
+        }
+    }
+}
+//1.2.4-SNAPSHOT 版本变更了插件名称
+apply plugin: 'zfun.module.mgr'//必须声明到根工程的build.gradle中
+
+funBuildType{
+     debug = true //true可以看到本插件的打印日志，false不可看到
+}
+```
+
 
 ## 模块管理
 进行组件化开发时，在开发各个组件时可以完全按照 `com.android.application`的方式来进行，并且可以按照`com.android.library`方式来被其他组件引用。
