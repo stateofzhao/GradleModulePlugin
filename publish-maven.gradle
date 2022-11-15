@@ -84,9 +84,10 @@ publishing {
     repositories {
         //发布到本地
         if ("true" == publish2Local) {
-            maven {
+            /*maven {
                 url = uri('./../../repo')
-            }
+            }*/
+            mavenLocal()
         } else {
             //发布到OSSRH仓库
             maven {
