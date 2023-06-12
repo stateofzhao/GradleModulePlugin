@@ -1,4 +1,4 @@
-package com.zfun.funmodule.processplug.extension;
+package com.zfun.funmodule.process.extension;
 
 import com.zfun.funmodule.BaseExtension;
 import com.zfun.funmodule.util.StringUtils;

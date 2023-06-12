@@ -1,4 +1,4 @@
-package com.zfun.funmodule.processplug.extension;
+package com.zfun.funmodule.process.extension;
 
 import com.zfun.funmodule.BaseExtension;
 import org.gradle.api.Action;
@@ -33,7 +33,6 @@ import org.gradle.api.Project;
  */
 public class MultiChannelEx extends BaseExtension {
     public String prefix;
-    public String subfix;
 
     //
     private final NamedDomainObjectContainer<ChannelExtension> channelConfig;
@@ -77,7 +76,6 @@ public class MultiChannelEx extends BaseExtension {
     public String toString() {
         return "MultiChannelEx{" +
                 "prefix='" + prefix + '\'' +
-                ", subfix='" + subfix + '\'' +
                 '}';
     }
 }

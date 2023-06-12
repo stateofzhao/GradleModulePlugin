@@ -1,9 +1,8 @@
-package com.zfun.funmodule.processplug.process;
+package com.zfun.funmodule.process.process;
 
-import com.zfun.funmodule.processplug.IProcess;
+import com.zfun.funmodule.process.IProcess;
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 public class EmptyProcess implements IProcess {
     @Override

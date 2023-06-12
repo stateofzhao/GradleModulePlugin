@@ -1,13 +1,13 @@
-package com.zfun.funmodule.processplug.process;
+package com.zfun.funmodule.process.process;
 
 import com.android.apksig.ApkVerifier;
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.api.ApplicationVariant;
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension;
 import com.zfun.funmodule.Constants;
-import com.zfun.funmodule.processplug.IProcess;
-import com.zfun.funmodule.processplug.extension.ChannelExtension;
-import com.zfun.funmodule.processplug.extension.MultiChannelEx;
+import com.zfun.funmodule.process.IProcess;
+import com.zfun.funmodule.process.extension.ChannelExtension;
+import com.zfun.funmodule.process.extension.MultiChannelEx;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.FilenameUtils;
 import com.zfun.funmodule.util.LogMe;
@@ -113,14 +113,14 @@ public class MultiChannelProcess implements IProcess {
                                            final ApplicationVariant applicationVariant,
                                            final MultiChannelEx multiChannelEx,
                                            final ChannelExtension channelEx) {
-        applicationVariant.getAssemble().doLast(new Action<Task>() {//打包后进行多渠道配置
+        applicationVariant.getAssembleProvider().get().doLast(new Action<Task>() {//打包后进行多渠道配置
             @Override
             public void execute(Task task) {
                 LogMe.D("************************多渠道打包Process-Start******************************");
                 LogMe.D("startMultiCreateApk getAssemble.doLast = " + task.getName());
                 try {
                     final String prefix = multiChannelEx.prefix;
-                    final String subfix = multiChannelEx.subfix;
+                    final String subfix = (null == channelEx.subfix?"":channelEx.subfix);
                     final String[] channels = channelEx.childFlavors.toArray(new String[0]);
 
                     final File oriOutputFile = applicationVariant.getOutputs().stream().findFirst().get().getOutputFile();
@@ -132,11 +132,12 @@ public class MultiChannelProcess implements IProcess {
 
                     final ApkVerifier.Result signerResult = signerVerify(oriOutputFile);
                     if(null == signerResult){
-                        LogMe.D("startMultiCreateApk fail = 原始apk包获取签名结果失败："+oriOutputFile.getAbsolutePath());
+                        LogMe.D("startMultiCreateApk fail = 原始apk包获验证是否能够在指定所有android系统上安装失败："+oriOutputFile.getAbsolutePath());
                         return;
                     }
 
                     int sucCount = 0;
+                    File firstChannelApkFile = null;
                     for (String aChannel : channels) {
                         LogMe.D("startMultiCreateApk work = " + aChannel);
                         final String finalOutFileFullPath = apkPath + prefix + aChannel + subfix + ".apk";
@@ -159,17 +160,10 @@ public class MultiChannelProcess implements IProcess {
                             LogMe.D("startMultiCreateApk signerResult = isVerifiedUsingV1Scheme");
                             isOk = optUseV1(desOutFile, aChannel, extraInfo, "");
                         }
-
-                        LogMe.D("BuildType is Debug == " + applicationVariant.getBuildType().isDebuggable());
-                        if (applicationVariant.getBuildType().isDebuggable()) {
-                            if (isOk) {//打的debug包，需要自动刷到手机上
-                                //debug模式下，要将写入渠道信息的包重命名为gradle打出来的包，防止无法自动安装到手机上
-                                oriOutputFile.delete();
-                                desOutFile.renameTo(oriOutputFile);
-                                isOk = false;//不要删除原始路径上的apk包，因为写入渠道的包重命名为原始路径apk包了
-                            }
-                        }
                         if (isOk) {
+                            if(null == firstChannelApkFile){
+                                firstChannelApkFile =  desOutFile;
+                            }
                             sucCount += 1;
                         } else {
                             try {
@@ -178,8 +172,18 @@ public class MultiChannelProcess implements IProcess {
                             }
                         }
                     }
-                    if(sucCount == channels.length){
+                    final boolean isAllOk = sucCount == channels.length;
+                    if(isAllOk){
                         oriOutputFile.delete();
+                        LogMe.D("startMultiCreateApk delete origin apk = "+oriOutputFile.getAbsolutePath());
+                    }
+                    LogMe.D("BuildType is Debug == " + applicationVariant.getBuildType().isDebuggable());
+                    if (applicationVariant.getBuildType().isDebuggable()) {//打的debug包，需要自动刷到手机上,
+                        if (isAllOk && null != firstChannelApkFile) {
+                            //debug模式下，要将写入渠道信息的包重命名为gradle打出来的包，防止无法自动安装到手机上
+                            firstChannelApkFile.renameTo(oriOutputFile);
+                            LogMe.D("startMultiCreateApk debug rename channel apk 2 origin apk ，result path = "+oriOutputFile.getAbsolutePath());
+                        }
                     }
                 } catch (Exception e) {
                     LogMe.D("startMultiCreateApk = Exception" + e);

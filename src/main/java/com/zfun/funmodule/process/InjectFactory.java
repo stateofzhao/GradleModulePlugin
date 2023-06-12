@@ -1,8 +1,7 @@
-package com.zfun.funmodule.processplug;
+package com.zfun.funmodule.process;
 
-import com.zfun.funmodule.processplug.extension.InjectEx;
-import com.zfun.funmodule.processplug.process.EmptyProcess;
-import com.zfun.funmodule.processplug.process.InjectionProcess;
+import com.zfun.funmodule.process.extension.InjectEx;
+import com.zfun.funmodule.process.process.InjectionProcess;
 import org.gradle.api.Project;
 
 import java.util.ArrayList;

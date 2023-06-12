@@ -1,13 +1,13 @@
-package com.zfun.funmodule.processplug;
+package com.zfun.funmodule.process;
 
 import com.zfun.funmodule.BaseExtension;
-import com.zfun.funmodule.processplug.extension.AppLibEx;
-import com.zfun.funmodule.processplug.extension.InjectEx;
-import com.zfun.funmodule.processplug.extension.MultiChannelEx;
+import com.zfun.funmodule.process.extension.AppLibEx;
+import com.zfun.funmodule.process.extension.InjectEx;
+import com.zfun.funmodule.process.extension.MultiChannelEx;
 import org.gradle.api.Project;
 
 public class FactoryProvider {
-    IProcessFactory<? extends BaseExtension> createFactory(Project project, BaseExtension extension) {
+    public IProcessFactory<? extends BaseExtension> createFactory(Project project, BaseExtension extension) {
         if(extension instanceof AppLibEx){
             return new AppLibFactory();
         }

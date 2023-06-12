@@ -11,7 +11,7 @@ gradlePlugin {
     plugins {
         simplePlugin {
             id = 'com.zfun.funmodule'
-            implementationClass = 'com.zfun.funmodule.processplug.ModulesConfigPlugin'
+            implementationClass = 'com.zfun.funmodule.ModulesConfigPlugin'
         }
     }
 }//插件定义-----------------------------------------------end

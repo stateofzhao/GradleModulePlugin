@@ -9,16 +9,24 @@ public class LogMe {
 
 
     public static void D(String msg) {
+        D(msg,true);
+    }
+
+    public static void D(String msg, boolean newLine) {
         if (isDebug) {
-            System.out.println(msg);
+            if (newLine) {
+                System.out.println(msg);
+            }else {
+                System.out.print(msg);
+            }
         }
     }
 
-    public static void D_Divider(String start,String elementName){
-        D(divider(start,elementName));
+    public static void D_Divider(String start, String elementName) {
+        D(divider(start, elementName));
     }
 
-    public static void D_Divider(){
+    public static void D_Divider() {
         D(sDivider);
     }
 

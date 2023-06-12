@@ -1,9 +1,9 @@
-package com.zfun.funmodule.processplug;
+package com.zfun.funmodule.process;
 
 import com.zfun.funmodule.BaseExtension;
 import com.zfun.funmodule.Constants;
-import com.zfun.funmodule.processplug.extension.AppLibEx;
-import com.zfun.funmodule.processplug.process.*;
+import com.zfun.funmodule.process.extension.AppLibEx;
+import com.zfun.funmodule.process.process.*;
 import org.gradle.api.Project;
 
 import java.util.ArrayList;

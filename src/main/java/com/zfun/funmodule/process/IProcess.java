@@ -1,8 +1,7 @@
-package com.zfun.funmodule.processplug;
+package com.zfun.funmodule.process;
 
 import org.gradle.BuildResult;
 import org.gradle.api.Project;
-import org.gradle.api.invocation.Gradle;
 
 public interface IProcess {
     void beforeEvaluate(Project project);

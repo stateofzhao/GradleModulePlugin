@@ -7,7 +7,7 @@ import com.zfun.funmodule.util.androidZipSinger.read.ChannelReader;
 import java.io.File;
 
 /**
- * 使用{@link com.zfun.funmodule.processplug.process.MultiChannelProcess}打完包后读取写入到的渠道信息。
+ * 使用{@link com.zfun.funmodule.process.process.MultiChannelProcess}打完包后读取写入到的渠道信息。
  * <p>
  * Created by zfun on 2021/12/20 2:18 PM
  */

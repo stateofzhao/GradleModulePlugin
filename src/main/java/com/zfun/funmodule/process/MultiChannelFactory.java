@@ -1,7 +1,7 @@
-package com.zfun.funmodule.processplug;
+package com.zfun.funmodule.process;
 
-import com.zfun.funmodule.processplug.extension.MultiChannelEx;
-import com.zfun.funmodule.processplug.process.MultiChannelProcess;
+import com.zfun.funmodule.process.extension.MultiChannelEx;
+import com.zfun.funmodule.process.process.MultiChannelProcess;
 import org.gradle.api.Project;
 
 import java.util.Collections;

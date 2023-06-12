@@ -1,8 +1,8 @@
-package com.zfun.funmodule.processplug.process;
+package com.zfun.funmodule.process.process;
 
 import com.zfun.funmodule.Constants;
-import com.zfun.funmodule.processplug.IProcess;
-import com.zfun.funmodule.processplug.ProjectFileRestoreMgr;
+import com.zfun.funmodule.process.IProcess;
+import com.zfun.funmodule.process.ProjectFileRestoreMgr;
 import com.zfun.funmodule.util.FileUtil;
 import com.zfun.funmodule.util.LogMe;
 import org.gradle.BuildResult;
