@@ -39,7 +39,7 @@ buildscript {
     }
 }
 //1.2.4-SNAPSHOT 版本变更了插件名称
-apply plugin: 'zfun.module.mgr'//必须声明到根工程的build.gradle中
+apply plugin: 'io.github.stateofzhao.module'//必须声明到根工程的build.gradle中
 
 funBuildType{
      debug = true //true可以看到本插件的打印日志，false不可看到

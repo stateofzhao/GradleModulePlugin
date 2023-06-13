@@ -29,6 +29,7 @@ import java.util.*;
 // 之后又在其子工程的build.gradle中重新配置了A的Extension 1，此时根build.gradle中配置的Extension就会被覆盖。
 // 【这里容易混淆，并不是哪个build.gradle配置Extension，就是哪个build.gradle拥有此Extension，始终只有apply插件的那个build.gradle拥有此Extension】
 public class ModulesConfigPlugin implements Plugin<Project> {
+    private boolean isInit = false;
     private final Map<Project, IProcess[]> mProcessMap = new HashMap<>();
     private final FactoryProvider processFactoryProvider = new FactoryProvider();
 
@@ -37,7 +38,8 @@ public class ModulesConfigPlugin implements Plugin<Project> {
         if (!Util.isRootProject(project)) { //只有 根build.gradle 起作用
             return;
         }
-        LogMe.D("ModulePlugin插件入口apply ==== " + project.getName());
+        isInit = false;
+        LogMe.D("ModulePlugin插件入口apply的ProjectName：" + project.getName());
         //一个"串行"build.gradle上只能存在一个同名的Extension，比如此Extension，已经在 根build.gradle 创建了，
         // 那么就不能在 子build.gradle 上面再次创建与此同名的Extension了。<br>
 
@@ -51,28 +53,9 @@ public class ModulesConfigPlugin implements Plugin<Project> {
             project.getExtensions().create(aPair.getKey(), aPair.getValue(), project);
         }
 
-        //init，rootProject解析完毕后才会开始解析其子Project
-        project.afterEvaluate(rootProject -> {
-            final BaseExtension[] extensions = findPluginEx(rootProject);
-            final Set<Project> allProjects = rootProject.getSubprojects();
-            allProjects.forEach(subProject -> {
-                final IProcess[] processes = createProcess(extensions, subProject);
-                mProcessMap.put(subProject, processes);
-                LogMe.D(subProject.getName() + "添加Process：", false);
-                for (int i = 0; i < processes.length; i++) {
-                    final IProcess aP = processes[i];
-                    if (i == processes.length - 1) {
-                        LogMe.D(aP.getClass().getSimpleName()+"。", true);
-                    } else {
-                        LogMe.D(aP.getClass().getSimpleName() + "、", false);
-                    }
-                }
-                LogMe.D("\n", false);
-            });
-        });
-
         //
         project.getGradle().projectsEvaluated(gradle -> {
+            initIfNeeded(gradle.getRootProject());
             final Set<Project> allProjects = project.getSubprojects();
             allProjects.forEach(subProject -> {
                 final IProcess[] processes = mProcessMap.get(subProject);
@@ -84,6 +67,7 @@ public class ModulesConfigPlugin implements Plugin<Project> {
 
         //notify
         project.getGradle().buildFinished(buildResult -> {
+            initIfNeeded(project.getRootProject());
             final Set<Project> allProjects = project.getSubprojects();
             allProjects.forEach(subProject -> {
                 final IProcess[] processes = mProcessMap.get(subProject);
@@ -96,17 +80,44 @@ public class ModulesConfigPlugin implements Plugin<Project> {
         //notify
         project.getSubprojects().forEach(subProject -> {
             subProject.beforeEvaluate(p -> {
+                initIfNeeded(project.getRootProject());
+                LogMe.D(subProject.getName() + "===beforeEvaluate", true);
                 final IProcess[] processes = mProcessMap.get(p);
                 for (final IProcess aProcess : processes) {
                     aProcess.beforeEvaluate(p);
                 }
             });
             subProject.afterEvaluate(p -> {
+                initIfNeeded(project.getRootProject());
+                LogMe.D(subProject.getName() + "===afterEvaluate", true);
                 final IProcess[] processes = mProcessMap.get(p);
                 for (final IProcess aProcess : processes) {
                     aProcess.afterEvaluate(p);
                 }
             });
+        });
+    }
+
+    private void initIfNeeded(Project rootProject){
+        if (isInit){
+            return;
+        }
+        isInit = true;
+        final BaseExtension[] extensions = findPluginEx(rootProject);
+        final Set<Project> allProjects = rootProject.getSubprojects();
+        allProjects.forEach(subProject -> {
+            final IProcess[] processes = createProcess(extensions, subProject);
+            mProcessMap.put(subProject, processes);
+            LogMe.D(subProject.getName() + "添加Process：", false);
+            for (int i = 0; i < processes.length; i++) {
+                final IProcess aP = processes[i];
+                if (i == processes.length - 1) {
+                    LogMe.D(aP.getClass().getSimpleName()+"。", true);
+                } else {
+                    LogMe.D(aP.getClass().getSimpleName() + "、", false);
+                }
+            }
+            LogMe.D("\n", false);
         });
     }
 
