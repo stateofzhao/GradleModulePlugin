@@ -31,7 +31,7 @@ def isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 //====publish case--2 == start
 task sourceJar(type: Jar,dependsOn:classes) {
-    from sourceSets.main.allJava
+    from sourceSets.main.allSource
     archiveClassifier = "sources"
 }
 task javadocJar(type: Jar, dependsOn:javadoc) {
